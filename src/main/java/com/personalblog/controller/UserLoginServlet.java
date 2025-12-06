@@ -52,7 +52,12 @@ public class UserLoginServlet extends HttpServlet {
     }
 
     /**
-     * 💡 封装一个发 JSON 的小工具方法，避免重复写代码
+     * 发送JSON响应
+     *
+     * @param resp    响应对象
+     * @param success 是否成功
+     * @param message 消息
+     * @param data    数据
      */
     private void sendJson(HttpServletResponse resp, boolean success, String message, Object data) throws IOException {
         Map<String, Object> result = new HashMap<>();

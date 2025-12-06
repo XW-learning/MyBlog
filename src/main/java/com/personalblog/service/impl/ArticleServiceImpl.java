@@ -5,6 +5,7 @@ import com.personalblog.mapper.impl.ArticleMapperImpl;
 import com.personalblog.model.Article;
 import com.personalblog.model.Category;
 import com.personalblog.service.ArticleService;
+
 import java.util.Date;
 import java.util.List;
 
@@ -14,36 +15,47 @@ public class ArticleServiceImpl implements ArticleService {
 
     /**
      * 发布文章业务
+     *
      * @param article 文章对象
      * @return 成功返回 true
      */
     @Override
-    public boolean publish(Article article) {
+    public Long publish(Article article) {
         // 1. 补全默认数据
-        article.setViews(0);   // 初始浏览量
-        article.setLikes(0);   // 初始点赞
-        article.setStatus(1);  // 1 表示已发布 (0表示草稿)
+        article.setViews(0);
+        article.setLikes(0);
+        // 注意：status 已由 Controller 设置，不再此处硬编码为 1
 
         Date now = new Date();
         article.setCreateTime(now);
         article.setUpdateTime(now);
 
-        // 2. 如果摘要为空，自动截取正文前100字作为摘要
+        // 2. 摘要处理
         if (article.getSummary() == null || article.getSummary().isEmpty()) {
             String content = article.getContent();
-            if (content.length() > 100) {
-                article.setSummary(content.substring(0, 100) + "...");
+            if (content != null) {
+                if (content.length() > 100) {
+                    article.setSummary(content.substring(0, 100) + "...");
+                } else {
+                    article.setSummary(content);
+                }
             } else {
-                article.setSummary(content);
+                article.setSummary("");
             }
         }
 
-        // 3. 保存到数据库
+        // 3. 保存并返回 ID
         return articleMapper.save(article);
+    }
+
+    @Override
+    public List<Article> getAllUserArticles(Long userId) {
+        return articleMapper.findListByUserId(userId);
     }
 
     /**
      * 获取指定用户已发布的文章（用于个人中心）
+     *
      * @param userId 作者ID
      * @return 文章列表
      */
@@ -55,6 +67,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     /**
      * 获取所有已发布的文章（首页展示）
+     *
      * @return 文章列表
      */
     @Override
@@ -66,6 +79,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     /**
      * 获取所有分类
+     *
      * @return 分类列表
      */
     @Override
@@ -75,6 +89,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     /**
      * 获取文章详情
+     *
      * @param id 文章ID
      * @return 文章详情
      */
@@ -88,6 +103,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     /**
      * 更新文章
+     *
      * @param article 文章对象
      * @return 更新成功返回 true
      */
@@ -99,8 +115,9 @@ public class ArticleServiceImpl implements ArticleService {
 
     /**
      * 删除文章
+     *
      * @param articleId 文章ID
-     * @param userId 用户ID
+     * @param userId    用户ID
      * @return 删除成功返回 true
      */
     @Override
@@ -117,7 +134,8 @@ public class ArticleServiceImpl implements ArticleService {
 
     /**
      * 切换点赞状态
-     * @param userId 用户ID
+     *
+     * @param userId    用户ID
      * @param articleId 文章ID
      * @return 切换成功返回 true
      */
@@ -141,6 +159,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     /**
      * 获取文章点赞数
+     *
      * @param articleId 文章ID
      * @return 点赞数
      */
@@ -152,6 +171,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     /**
      * 获取文章点赞数
+     *
      * @return 热门文章列表
      */
     @Override
@@ -161,7 +181,8 @@ public class ArticleServiceImpl implements ArticleService {
 
     /**
      * 检查用户是否已点赞
-     * @param userId 用户ID
+     *
+     * @param userId    用户ID
      * @param articleId 文章ID
      * @return true 表示已点赞，false 表示未点赞
      */

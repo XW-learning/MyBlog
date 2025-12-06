@@ -10,7 +10,13 @@ public interface ArticleMapper {
      * 新增文章
      * @return 成功返回 true
      */
-    boolean save(Article article);
+//    boolean save(Article article);
+
+    /**
+     * 新增文章并返回文章ID
+     * @return 文章ID
+     */
+    Long save(Article article);
 
     /**
      * 根据用户ID和状态查询文章列表
@@ -19,6 +25,13 @@ public interface ArticleMapper {
      * @return 文章列表
      */
     List<Article> findListByUserIdAndStatus(Long userId, Integer status);
+
+    /**
+     * 根据用户ID查询文章列表
+     * @param userId 作者ID
+     * @return 文章列表
+     */
+    List<Article> findListByUserId(Long userId);
 
     /**
      * 根据状态和排序字段查询文章列表

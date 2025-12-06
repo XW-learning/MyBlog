@@ -14,10 +14,7 @@
         <a href="index.html" class="back-link">← 首页</a>
 
         <div class="write-actions">
-<!--            <div class="title-counter">-->
-<!--                <span class="edit-icon">📝</span>-->
-<!--                <span id="wordCountDisplay">待输入...</span>-->
-<!--            </div>-->
+            <button class="btn-draft" id="btn-draft">保存草稿</button>
             <button class="btn-publish" id="btn-publish">发布文章</button>
         </div>
     </div>
@@ -26,22 +23,25 @@
 <div class="editor-main-container">
 
     <div class="editor-canvas-wrapper">
-
         <div class="editor-canvas">
             <input type="text" id="title" class="title-input-word" placeholder="请输入文章标题">
             <textarea id="content" class="main-editor-word" placeholder="在此处开始您的创作..."></textarea>
         </div>
-
-        <div class="category-select-wrapper">
-            <label for="category-select">文章分类：</label>
-            <select id="category-select" name="categoryId" required>
-                <option value="">-- 请选择一个分类 --</option>
-            </select>
-        </div>
-
     </div>
+
+    <div class="write-sidebar">
+        <div class="sidebar-section category-section">
+            <h3 class="sidebar-title">选择分类</h3>
+            <input type="hidden" id="selected-category-id" value="">
+            <div class="category-tags-wrapper" id="category-tags-container">
+                <span style="color:#999; font-size: 14px;">正在加载分类...</span>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script src="../static/js/write.js"></script>
 </body>
 </html>
+}

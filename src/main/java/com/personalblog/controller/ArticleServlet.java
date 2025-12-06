@@ -43,16 +43,19 @@ public class ArticleServlet extends HttpServlet {
 
         // 2. 路由分发
         if ("publishArticle".equalsIgnoreCase(action)) {
+            // 发布文章
             handlePublish(req, resp, currentUser);
         } else if ("deleteArticle".equalsIgnoreCase(action)) {
+            // 删除文章
             handleDelete(req, resp, currentUser);
         } else if ("updateArticle".equalsIgnoreCase(action)) {
+            // 修改文章
             handleUpdate(req, resp, currentUser);
         } else if ("like".equalsIgnoreCase(action)) {
+            // 点赞文章
             handleLike(req, resp, currentUser);
-        }
-        // 🔥 回归：查询个人文章列表 (移回 POST)
-        else if ("loadArticleList".equalsIgnoreCase(action)) {
+        } else if ("loadArticleList".equalsIgnoreCase(action)) {
+            // 查询个人列表
             handleArticleList(req, resp, currentUser);
         } else {
             sendJson(resp, false, "缺失或不支持的 POST 动作: " + action, null);
@@ -71,24 +74,20 @@ public class ArticleServlet extends HttpServlet {
         String action = req.getParameter("action");
         if (action != null) action = action.trim();
 
-        // 1. 首页文章列表 (开放)
         if ("loadIndexArticleList".equalsIgnoreCase(action)) {
+            // 首页列表
             handleIndexArticleList(req, resp);
-        }
-        // 2. 分类列表 (开放)
-        else if ("loadCategories".equalsIgnoreCase(action)) {
+        } else if ("loadCategories".equalsIgnoreCase(action)) {
+            // 分类
             handleLoadCategories(req, resp);
-        }
-        // 3. 文章详情 (开放)
-        else if ("getDetail".equalsIgnoreCase(action)) {
+        } else if ("getDetail".equalsIgnoreCase(action)) {
+            // 详情
             handleGetDetail(req, resp);
-        }
-        // 4. 侧边栏热榜 (开放)
-        else if ("loadHotArticles".equalsIgnoreCase(action)) {
+        } else if ("loadHotArticles".equalsIgnoreCase(action)) {
+            // 热榜
             handleLoadHotArticles(req, resp);
-        }
-        // 5. 检查点赞状态 (需Session但属只读，放在GET也行，这里通过判空兼容)
-        else if ("checkLikeStatus".equalsIgnoreCase(action)) {
+        } else if ("checkLikeStatus".equalsIgnoreCase(action)) {
+            // 检查点赞状态
             handleCheckLikeStatus(req, resp);
         } else {
             sendJson(resp, false, "缺失或不支持的 GET 动作: [" + action + "]", null);
@@ -99,10 +98,17 @@ public class ArticleServlet extends HttpServlet {
     // 处理方法实现
     // ----------------------------------------------------------------
 
-    // 个人文章列表查询
+    /**
+     * 获取文章列表
+     *
+     * @param req         请求
+     * @param resp        响应
+     * @param currentUser 当前用户
+     * @throws IOException IO 异常
+     */
     private void handleArticleList(HttpServletRequest req, HttpServletResponse resp, User currentUser) throws IOException {
         try {
-            List<Article> articles = articleService.getUserPublishedArticles(currentUser.getId());
+            List<Article> articles = articleService.getAllUserArticles(currentUser.getId());
             sendJson(resp, true, "获取文章列表成功", articles);
         } catch (Exception e) {
             e.printStackTrace();
@@ -110,29 +116,45 @@ public class ArticleServlet extends HttpServlet {
         }
     }
 
-    // 发布文章
+    /**
+     * 发布文章
+     *
+     * @param req         请求
+     * @param resp        响应
+     * @param currentUser 当前用户
+     * @throws IOException IO 异常
+     */
     private void handlePublish(HttpServletRequest req, HttpServletResponse resp, User currentUser) throws IOException {
         String title = req.getParameter("title");
         String content = req.getParameter("content");
-        String summary = req.getParameter("summary");
         String categoryIdStr = req.getParameter("categoryId");
-        if (title == null || title.trim().isEmpty() || content == null || content.trim().isEmpty() || categoryIdStr == null || categoryIdStr.trim().isEmpty()) {
-            sendJson(resp, false, "标题、正文和分类都不能为空", null);
+        String statusStr = req.getParameter("status"); // 获取状态参数
+
+        // 草稿允许分类为空，发布不允许
+        int status = (statusStr != null) ? Integer.parseInt(statusStr) : 1;
+
+        if (title == null || title.trim().isEmpty()) {
+            sendJson(resp, false, "标题不能为空", null);
             return;
         }
+
         try {
-            Long categoryId = Long.parseLong(categoryIdStr);
+            Long categoryId = (categoryIdStr != null && !categoryIdStr.isEmpty()) ? Long.parseLong(categoryIdStr) : 0L;
+
             Article article = new Article();
             article.setTitle(title);
             article.setContent(content);
-            article.setSummary(summary);
             article.setUserId(currentUser.getId());
             article.setCategoryId(categoryId);
-            boolean success = articleService.publish(article);
-            if (success) {
-                sendJson(resp, true, "发布成功！", null);
+            article.setStatus(status); // 设置状态
+
+            Long newId = articleService.publish(article);
+            if (newId > 0) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("newId", newId);
+                sendJson(resp, true, "操作成功", data);
             } else {
-                sendJson(resp, false, "发布失败，请稍后重试", null);
+                sendJson(resp, false, "操作失败", null);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -140,7 +162,14 @@ public class ArticleServlet extends HttpServlet {
         }
     }
 
-    // 删除文章
+    /**
+     * 删除文章
+     *
+     * @param req         请求
+     * @param resp        响应
+     * @param currentUser 当前用户
+     * @throws IOException IO 错误
+     */
     private void handleDelete(HttpServletRequest req, HttpServletResponse resp, User currentUser) throws IOException {
         String articleIdStr = req.getParameter("id");
         try {
@@ -154,16 +183,31 @@ public class ArticleServlet extends HttpServlet {
         }
     }
 
-    // 更新文章
+    /**
+     * 更新文章
+     *
+     * @param req         请求
+     * @param resp        响应
+     * @param currentUser 当前用户
+     * @throws IOException IO 错误
+     */
     private void handleUpdate(HttpServletRequest req, HttpServletResponse resp, User currentUser) throws IOException {
         try {
+            String statusStr = req.getParameter("status");
+            int status = (statusStr != null) ? Integer.parseInt(statusStr) : 1;
+            String categoryIdStr = req.getParameter("categoryId");
+            Long categoryId = (categoryIdStr != null && !categoryIdStr.isEmpty()) ? Long.parseLong(categoryIdStr) : 0L;
+
             Article article = new Article();
             article.setId(Long.parseLong(req.getParameter("id")));
             article.setTitle(req.getParameter("title"));
             article.setContent(req.getParameter("content"));
-            article.setSummary(req.getParameter("summary"));
-            article.setCategoryId(Long.parseLong(req.getParameter("categoryId")));
+            // 自动截取摘要
+            String content = req.getParameter("content");
+            article.setSummary(content.length() > 100 ? content.substring(0, 100) : content);
+            article.setCategoryId(categoryId);
             article.setUserId(currentUser.getId());
+            article.setStatus(status); // 设置状态
 
             boolean success = articleService.updateArticle(article);
             if (success) sendJson(resp, true, "更新成功", null);
@@ -174,7 +218,14 @@ public class ArticleServlet extends HttpServlet {
         }
     }
 
-    // 点赞
+    /**
+     * 点赞
+     *
+     * @param req         请求
+     * @param resp        响应
+     * @param currentUser 当前用户
+     * @throws IOException IO 错误
+     */
     private void handleLike(HttpServletRequest req, HttpServletResponse resp, User currentUser) throws IOException {
         try {
             Long aid = Long.parseLong(req.getParameter("id"));
@@ -190,7 +241,11 @@ public class ArticleServlet extends HttpServlet {
     }
 
     /**
-     * 首页文章列表查询逻辑 (GET, 开放)
+     * 获取首页文章列表
+     *
+     * @param req  请求
+     * @param resp 响应
+     * @throws IOException IO 错误
      */
     private void handleIndexArticleList(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
@@ -212,7 +267,13 @@ public class ArticleServlet extends HttpServlet {
         }
     }
 
-    // 分类列表
+    /**
+     * 加载所有分类
+     *
+     * @param req  请求
+     * @param resp 响应
+     * @throws IOException IO 错误
+     */
     private void handleLoadCategories(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             List<Category> categories = articleService.getAllCategories();
@@ -223,7 +284,13 @@ public class ArticleServlet extends HttpServlet {
         }
     }
 
-    // 文章详情
+    /**
+     * 获取文章详情
+     *
+     * @param req  请求
+     * @param resp 响应
+     * @throws IOException IO 错误
+     */
     private void handleGetDetail(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String idStr = req.getParameter("id");
         try {
@@ -237,7 +304,13 @@ public class ArticleServlet extends HttpServlet {
         }
     }
 
-    // 侧边栏热榜
+    /**
+     * 获取热门文章
+     *
+     * @param req  请求
+     * @param resp 响应
+     * @throws IOException IO 错误
+     */
     private void handleLoadHotArticles(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             List<Article> hots = articleService.getHotArticles();
@@ -248,7 +321,13 @@ public class ArticleServlet extends HttpServlet {
         }
     }
 
-    // 检查点赞状态
+    /**
+     * 检查用户是否点赞
+     *
+     * @param req  请求
+     * @param resp 响应
+     * @throws IOException IO 错误
+     */
     private void handleCheckLikeStatus(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         User currentUser = (User) req.getSession().getAttribute("currentUser");
         String idStr = req.getParameter("id");
@@ -260,7 +339,15 @@ public class ArticleServlet extends HttpServlet {
         sendJson(resp, true, "查询成功", liked);
     }
 
-    // 发送 JSON 工具方法
+    /**
+     * 发送 JSON 数据
+     *
+     * @param resp    响应
+     * @param success 是否成功
+     * @param message 消息
+     * @param data    数据
+     * @throws IOException IO 错误
+     */
     private void sendJson(HttpServletResponse resp, boolean success, String message, Object data) throws IOException {
         Map<String, Object> result = new HashMap<>();
         result.put("success", success);

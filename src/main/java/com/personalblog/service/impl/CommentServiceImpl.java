@@ -15,7 +15,8 @@ public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper = new CommentMapperImpl();
 
     /**
-     * [新增] 发表评论
+     * 发表评论
+     *
      * @param comment 评论对象
      * @return 插入成功返回 true
      */
@@ -25,7 +26,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     /**
-     * [新增] 根据文章ID查询评论列表
+     * 根据文章ID查询评论列表
+     *
      * @param articleId 文章ID
      * @return 评论列表
      */
@@ -67,12 +69,12 @@ public class CommentServiceImpl implements CommentService {
             }
         }
 
-        // 5. 返回组装好的根节点列表
         return rootComments;
     }
 
     /**
-     * [新增] 删除评论
+     * 删除评论
+     *
      * @param commentId 评论ID
      * @return 删除成功返回 true
      */
@@ -82,7 +84,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     /**
-     * [新增] 根据 ID 查询单条评论
+     * 根据 ID 查询单条评论
+     *
      * @param id 评论ID
      * @return 评论对象
      */

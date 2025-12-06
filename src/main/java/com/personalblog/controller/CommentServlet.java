@@ -34,7 +34,7 @@ public class CommentServlet extends HttpServlet {
 
         User currentUser = (User) req.getSession().getAttribute("currentUser");
 
-        // --- 1. 发布评论 (需登录) ---
+        // --- 1. 发表评论 (需登录) ---
         if ("publish".equalsIgnoreCase(action)) {
             if (currentUser == null) {
                 sendJson(resp, false, "请先登录", null);
@@ -42,7 +42,7 @@ public class CommentServlet extends HttpServlet {
             }
             handlePublish(req, resp, currentUser);
         }
-        // --- 2. 删除评论 (需登录) [新增部分] ---
+        // --- 2. 删除评论 (需登录) ---
         else if ("delete".equalsIgnoreCase(action)) {
             if (currentUser == null) {
                 sendJson(resp, false, "请先登录", null);
@@ -50,8 +50,7 @@ public class CommentServlet extends HttpServlet {
             }
             // 删除评论
             handleDelete(req, resp, currentUser);
-        }
-        else {
+        } else {
             sendJson(resp, false, "不支持的 POST 动作: " + action, null);
         }
     }
@@ -78,6 +77,10 @@ public class CommentServlet extends HttpServlet {
 
     /**
      * 处理获取评论列表
+     *
+     * @param req  请求
+     * @param resp 响应
+     * @throws IOException 响应 IO 异常
      */
     private void handleList(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String articleIdStr = req.getParameter("articleId");
@@ -102,6 +105,11 @@ public class CommentServlet extends HttpServlet {
 
     /**
      * 处理发表评论
+     *
+     * @param req  请求
+     * @param resp 响应
+     * @param user 当前用户
+     * @throws IOException 响应 IO 错误
      */
     private void handlePublish(HttpServletRequest req, HttpServletResponse resp, User user) throws IOException {
         String articleIdStr = req.getParameter("articleId");
@@ -136,7 +144,12 @@ public class CommentServlet extends HttpServlet {
     }
 
     /**
-     * [新增] 处理删除评论
+     * 处理删除评论
+     *
+     * @param req  请求
+     * @param resp 响应
+     * @param user 当前用户
+     * @throws IOException 响应 IO 错误
      */
     private void handleDelete(HttpServletRequest req, HttpServletResponse resp, User user) throws IOException {
         String commentIdStr = req.getParameter("commentId");
@@ -186,6 +199,15 @@ public class CommentServlet extends HttpServlet {
         }
     }
 
+    /**
+     * 发送 JSON 响应
+     *
+     * @param resp    响应
+     * @param success 是否成功
+     * @param message 消息
+     * @param data    数据
+     * @throws IOException 响应 IO 错误
+     */
     private void sendJson(HttpServletResponse resp, boolean success, String message, Object data) throws IOException {
         Map<String, Object> result = new HashMap<>();
         result.put("success", success);

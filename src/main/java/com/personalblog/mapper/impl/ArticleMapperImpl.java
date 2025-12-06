@@ -8,6 +8,7 @@ import com.personalblog.utils.JDBCUtils;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,38 +16,55 @@ public class ArticleMapperImpl implements ArticleMapper {
 
     /**
      * 新增文章
-     * @param article 文章对象
-     * @return 添加成功返回 true
+     *
+     * @param article 文章模型
+     * @return 添加成功返回文章ID
      */
     @Override
-    public boolean save(Article article) {
+    public Long save(Article article) {
         String sql = "INSERT INTO t_article " +
                 "(user_id, title, summary, category_id, content, views, likes, status, create_time, update_time) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         try {
-            // 使用 JDBCUtils 的通用增删改方法
-            int rows = JDBCUtils.executeUpdate(sql,
-                    article.getUserId(),
-                    article.getTitle(),
-                    article.getSummary(),
-                    article.getCategoryId(),
-                    article.getContent(),
-                    article.getViews(),
-                    article.getLikes(),
-                    article.getStatus(),
-                    article.getCreateTime(),
-                    article.getUpdateTime()
-            );
-            return rows > 0;
+            conn = JDBCUtils.getConnection();
+            // 关键：指定 RETURN_GENERATED_KEYS
+            ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+            ps.setLong(1, article.getUserId());
+            ps.setString(2, article.getTitle());
+            ps.setString(3, article.getSummary());
+            ps.setObject(4, article.getCategoryId() == 0 ? null : article.getCategoryId()); // 允许草稿无分类
+            ps.setString(5, article.getContent());
+            ps.setInt(6, article.getViews());
+            ps.setInt(7, article.getLikes());
+            ps.setInt(8, article.getStatus());
+            ps.setTimestamp(9, new java.sql.Timestamp(article.getCreateTime().getTime()));
+            ps.setTimestamp(10, new java.sql.Timestamp(article.getUpdateTime().getTime()));
+
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
+                // 获取生成的 ID
+                rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+        } finally {
+            JDBCUtils.close(conn, ps, rs);
         }
+        return -1L;
     }
 
 
     /**
      * 根据用户ID和状态查询文章列表（用于个人中心和草稿箱）
+     *
      * @param userId 作者ID
      * @param status 状态 (1: 已发布, 0: 草稿)
      * @return 文章列表
@@ -88,6 +106,7 @@ public class ArticleMapperImpl implements ArticleMapper {
 
     /**
      * 获取指定状态的文章列表 (用于首页)
+     *
      * @param status 状态 (1: 已发布, 0: 草稿)
      * @return 文章列表
      */
@@ -134,7 +153,8 @@ public class ArticleMapperImpl implements ArticleMapper {
 
     /**
      * 获取指定状态的文章列表 (用于首页)
-     * @param status 状态 (1: 已发布, 0: 草稿)
+     *
+     * @param status    状态 (1: 已发布, 0: 草稿)
      * @param sortOrder 排序方式 (new: 最新, hot: 热度)
      * @return 文章列表
      */
@@ -192,6 +212,7 @@ public class ArticleMapperImpl implements ArticleMapper {
 
     /**
      * 查询所有分类
+     *
      * @return 分类列表
      */
     @Override
@@ -225,6 +246,7 @@ public class ArticleMapperImpl implements ArticleMapper {
 
     /**
      * 根据文章ID查询文章
+     *
      * @param id 文章ID
      * @return 文章对象
      */
@@ -251,6 +273,7 @@ public class ArticleMapperImpl implements ArticleMapper {
                 article.setCategoryId(rs.getLong("category_id"));
                 article.setViews(rs.getInt("views"));
                 article.setLikes(rs.getInt("likes"));
+                article.setStatus(rs.getInt("status"));
                 article.setCreateTime(rs.getTimestamp("create_time"));
                 article.setUpdateTime(rs.getTimestamp("update_time"));
             }
@@ -264,6 +287,7 @@ public class ArticleMapperImpl implements ArticleMapper {
 
     /**
      * 增加文章阅读数
+     *
      * @param id 文章ID
      */
     @Override
@@ -280,19 +304,23 @@ public class ArticleMapperImpl implements ArticleMapper {
 
     /**
      * 更新文章
+     *
      * @param article 文章对象
      * @return 更新结果
      */
     @Override
     public int update(Article article) {
+        // 增加 status=? 用于草稿转发布
+        String sql = "UPDATE t_article SET title=?, summary=?, content=?, category_id=?, status=?, update_time=NOW() " +
+                "WHERE id=? AND user_id=?";
+        // 使用 JDBCUtils 需要保证参数顺序一致
         try {
-            String sql = "UPDATE t_article SET title=?, summary=?, content=?, category_id=?, update_time=NOW() " +
-                    "WHERE id=? AND user_id=?";
             return JDBCUtils.executeUpdate(sql,
                     article.getTitle(),
                     article.getSummary(),
                     article.getContent(),
-                    article.getCategoryId(),
+                    article.getCategoryId() == 0 ? null : article.getCategoryId(),
+                    article.getStatus(), // 新增
                     article.getId(),
                     article.getUserId()
             );
@@ -302,9 +330,51 @@ public class ArticleMapperImpl implements ArticleMapper {
         }
     }
 
+    /**
+     * 删除文章
+     *
+     * @param userId 用户ID
+     * @return 删除结果
+     */
+    @Override
+    public List<Article> findListByUserId(Long userId) {
+        List<Article> articleList = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = JDBCUtils.getConnection();
+            // 去掉 status 条件
+            String sql = "SELECT id, title, create_time, views, likes, status " +
+                    "FROM t_article WHERE user_id = ? ORDER BY create_time DESC";
+
+            ps = conn.prepareStatement(sql);
+            ps.setLong(1, userId);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Article article = new Article();
+                article.setId(rs.getLong("id"));
+                article.setTitle(rs.getString("title"));
+                article.setCreateTime(rs.getTimestamp("create_time"));
+                article.setViews(rs.getInt("views"));
+                article.setLikes(rs.getInt("likes"));
+                article.setStatus(rs.getInt("status"));
+                articleList.add(article);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            JDBCUtils.close(conn, ps, rs);
+        }
+        return articleList;
+    }
+
 
     /**
      * 删除文章
+     *
      * @param id 文章ID
      * @return 删除结果
      */
@@ -319,6 +389,13 @@ public class ArticleMapperImpl implements ArticleMapper {
         }
     }
 
+    /**
+     * 判断用户是否已点赞
+     *
+     * @param userId    用户ID
+     * @param articleId 文章ID
+     * @return 是否已点赞
+     */
     @Override
     public boolean isLiked(Long userId, Long articleId) {
         String sql = "SELECT COUNT(*) FROM t_article_like WHERE user_id = ? AND article_id = ?";
@@ -331,33 +408,73 @@ public class ArticleMapperImpl implements ArticleMapper {
             if (rs.next()) {
                 return rs.getInt(1) > 0;
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return false; // 注意：查询操作记得在外部或这里 close 资源，这里简化了
     }
 
+    /**
+     * 添加点赞记录
+     *
+     * @param userId    用户ID
+     * @param articleId 文章ID
+     */
     @Override
     public void addLike(Long userId, Long articleId) {
         String sql = "INSERT INTO t_article_like (user_id, article_id) VALUES (?, ?)";
-        JDBCUtils.executeUpdate(sql, userId, articleId);
+        try {
+            JDBCUtils.executeUpdate(sql, userId, articleId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
+    /**
+     * 删除点赞记录
+     *
+     * @param userId    用户ID
+     * @param articleId 文章ID
+     */
     @Override
     public void removeLike(Long userId, Long articleId) {
         String sql = "DELETE FROM t_article_like WHERE user_id = ? AND article_id = ?";
-        JDBCUtils.executeUpdate(sql, userId, articleId);
+        try {
+            JDBCUtils.executeUpdate(sql, userId, articleId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
+    /**
+     * 更新文章点赞数
+     *
+     * @param articleId 文章ID
+     * @param increment 增量
+     */
     @Override
     public void updateLikeCount(Long articleId, int increment) {
         // 这里的 increment 可以是 +1 或 -1
         String sql = "UPDATE t_article SET likes = likes + ? WHERE id = ?";
-        JDBCUtils.executeUpdate(sql, increment, articleId);
+        try {
+            JDBCUtils.executeUpdate(sql, increment, articleId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
+
+    /**
+     * 查询最热门的文章
+     *
+     * @param limit 查询数量
+     * @return 最热门的文章列表
+     */
     @Override
     public List<Article> findHotArticles(int limit) {
         List<Article> list = new ArrayList<>();
-        String sql = "SELECT id, title, views, likes FROM t_article WHERE status = 1 ORDER BY likes DESC, views DESC LIMIT ?";
+        String sql = "SELECT id, title, views, likes FROM t_article " +
+                "WHERE status = 1 ORDER BY likes DESC, views DESC LIMIT ?";
         try {
             Connection conn = JDBCUtils.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -372,8 +489,9 @@ public class ArticleMapperImpl implements ArticleMapper {
                 list.add(article);
             }
             JDBCUtils.close(conn, ps, rs);
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return list;
     }
-
 }

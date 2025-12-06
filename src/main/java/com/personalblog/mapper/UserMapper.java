@@ -9,6 +9,7 @@ public interface UserMapper {
 
     /**
      * 根据用户名查询用户
+     *
      * @param username 用户名
      * @return 用户
      */
@@ -16,6 +17,7 @@ public interface UserMapper {
 
     /**
      * 保存用户
+     *
      * @param user 用户
      * @return 保存成功返回 true
      */

@@ -14,6 +14,7 @@ public class CommentMapperImpl implements CommentMapper {
 
     /**
      * 添加评论
+     *
      * @param comment 评论模型
      * @return 影响行数
      */
@@ -36,6 +37,7 @@ public class CommentMapperImpl implements CommentMapper {
 
     /**
      * 根据文章ID查询评论列表
+     *
      * @param articleId 文章ID
      * @return 评论列表
      */
@@ -84,6 +86,7 @@ public class CommentMapperImpl implements CommentMapper {
 
     /**
      * 删除评论
+     *
      * @param id 评论ID
      * @return 影响行数
      */
@@ -105,6 +108,7 @@ public class CommentMapperImpl implements CommentMapper {
 
     /**
      * 根据ID查询评论
+     *
      * @param id 评论ID
      * @return 评论模型
      */

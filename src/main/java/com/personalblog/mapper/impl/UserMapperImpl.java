@@ -56,9 +56,15 @@ public class UserMapperImpl implements UserMapper {
      */
     @Override
     public boolean save(User user) {
-        String sql = "INSERT INTO t_user(username, password, nickname, create_time) VALUES(?, ?, ?, ?)";
-        int rows = JDBCUtils.executeUpdate(sql, user.getUsername(), user.getPassword(), user.getNickname(),
-                user.getCreateTime());
-        return rows > 0;
+        try {
+            String sql = "INSERT INTO t_user(username, password, nickname, create_time) VALUES(?, ?, ?, ?)";
+            int rows = JDBCUtils.executeUpdate(sql, user.getUsername(), user.getPassword(), user.getNickname(),
+                    user.getCreateTime());
+            return rows > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
+
 }

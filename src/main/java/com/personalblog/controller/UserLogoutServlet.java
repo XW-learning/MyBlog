@@ -41,15 +41,19 @@ public class UserLogoutServlet extends HttpServlet {
         }
     }
 
-    // 登出操作不应通过 URL GET 方式访问
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.sendError(405, "GET method not supported for logout.");
     }
 
-    // -------------------------------------------------------------
-    // UTILITY METHOD (保持与其它 Servlets 一致的 JSON 响应格式)
-    // -------------------------------------------------------------
+    /**
+     * 发送 JSON 响应
+     *
+     * @param resp    响应对象
+     * @param success 是否成功
+     * @param message 响应消息
+     * @param data    响应数据
+     */
     private void sendJson(HttpServletResponse resp, boolean success, String message, Object data) throws IOException {
         Map<String, Object> result = new HashMap<>();
         result.put("success", success);
