@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>个人技术博客 - 首页</title>
+    <link rel="stylesheet" href="../static/css/index.css">
+    <link rel="stylesheet" href="../static/css/common.css">
+    <script src="../static/js/libs/jquery.min.js"></script>
+</head>
+<body>
+
+<header class="navbar">
+    <div class="nav-container">
+        <div class="logo">MyBlog</div>
+        <ul class="nav-links">
+            <li><a href="#" class="active">首页</a></li>
+            <li><a href="#">分类</a></li>
+            <li><a href="#">归档</a></li>
+        </ul>
+        <div class="nav-actions">
+            <input type="text" placeholder="搜索博文..." class="search-box">
+            <a href="login.html" class="btn-login">登录/注册</a>
+
+            <button class="btn-write" id="btn-write-article">🖊️ 写博客</button>
+        </div>
+    </div>
+</header>
+
+<div class="main-container">
+
+    <div class="content-area">
+        <div class="filter-bar">
+            <span class="filter-item active" data-sort="recommend">推荐</span>
+            <span class="filter-item" data-sort="new">最新</span>
+            <span class="filter-item" data-sort="hot">热榜</span>
+        </div>
+
+        <div id="article-list" class="article-list">
+            <p style="padding: 20px; color: #999;">正在加载文章...</p>
+        </div>
+    </div>
+
+    <aside class="sidebar">
+        <div class="card author-card">
+            <div class="avatar-placeholder"></div>
+            <h3>博主昵称</h3>
+            <p>JavaWeb 学习者 | 代码爱好者</p>
+            <div class="stats">
+                <div><span>10</span><br>文章</div>
+                <div><span>5k</span><br>访问</div>
+            </div>
+        </div>
+
+        <div class="card hot-list">
+            <h3>🔥 热门文章</h3>
+            <ul>
+                <li><a href="#">1. Servlet 生命周期详解</a></li>
+                <li><a href="#">2. JDBC 数据库连接池配置</a></li>
+                <li><a href="#">3. jQuery AJAX 避坑指南</a></li>
+            </ul>
+        </div>
+    </aside>
+
+</div>
+</body>
+
+
+<script src="../static/js/index.js"></script>
+</html>

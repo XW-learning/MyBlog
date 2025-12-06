@@ -1,0 +1,153 @@
+/* src/main/webapp/static/css/write.css (Word 风格重构) */
+
+/* --- 1. 顶部 Header (固定) --- */
+.write-header {
+    height: 60px;
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+}
+
+.write-nav {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* 操作按钮靠右 */
+}
+
+.back-link {
+    color: #999;
+    font-size: 16px;
+    margin-right: auto;
+}
+
+/* 顶部操作按钮和字数统计 */
+.write-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.title-counter {
+    font-size: 13px;
+    color: #999;
+    display: flex;
+    align-items: center;
+}
+
+.btn-publish {
+    background: #fc5531;
+    color: #fff;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* --- 2. 主体布局 (Flex for Canvas + Sidebar) --- */
+.editor-main-container {
+    display: flex;
+    padding-top: 60px; /* 避开固定头部 */
+    height: 100vh; /* 占据整个视口高度 */
+    width: 100%;
+}
+
+/* --- 3. 核心：Word Canvas 包裹层 (负责滚动和背景色) --- */
+.editor-canvas-wrapper {
+    flex: 1;
+    padding: 30px 0; /* 上下留白，让“纸张”悬浮 */
+    overflow-y: auto; /* 允许内容超出时滚动 */
+    background: #f8f8f8; /* 纸张周围的背景色 */
+}
+
+/* --- 4. 核心：Word Canvas (居中的“纸张”) --- */
+.editor-canvas {
+    width: 800px; /* 固定的编辑宽度 */
+    min-height: calc(100vh - 120px); /* 确保内容区足够大 */
+    margin: 0 auto; /* 水平居中 */
+    padding: 40px; /* “纸张”内边距 */
+    background: #fff; /* 纸张颜色 */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 轻微阴影 */
+}
+
+/* --- 5. 标题和内容样式 (消除边距，保持连续) --- */
+.title-input-word {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 30px; /* 标题字号 */
+    font-weight: 700;
+    margin-bottom: 25px; /* 标题与正文的间距 */
+    padding: 0;
+    color: #333;
+    display: block;
+}
+
+.main-editor-word {
+    width: 100%;
+    height: 600px; /* 初始高度，内容多时可滚动 */
+    min-height: 50vh;
+    border: none;
+    outline: none;
+    resize: none; /* 禁止手动调整大小 */
+    font-size: 16px;
+    line-height: 1.8;
+    color: #333;
+    padding: 0;
+    display: block;
+}
+
+/* --- 6. 右侧：提示区域样式 (固定在右侧) --- */
+.inspiration-sidebar {
+    width: 300px;
+    min-width: 300px;
+    padding: 20px;
+    height: 100vh; /* 固定高度 */
+    background: #fff;
+    border-left: 1px solid #eee;
+    overflow-y: auto;
+}
+
+.inspiration-card {
+    background: #fff;
+    padding: 15px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.inspiration-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px dashed #eee;
+}
+
+.inspiration-card ul {
+    list-style: none; /* 移除默认的 list-style */
+    padding-left: 0;
+}
+
+.inspiration-card li {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.8;
+    /* 模拟图片中的点 */
+    position: relative;
+    padding-left: 10px;
+}
+
+.inspiration-card li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #fc5531; /* 可以使用主题色 */
+    font-weight: bold;
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>登录 - 个人博客</title>
+    <link rel="stylesheet" href="../static/css/login.css">
+    <link rel="stylesheet" href="../static/css/common.css">
+    <script src="../static/js/libs/jquery.min.js"></script>
+
+</head>
+<body class="bg-login">
+
+<div class="login-container">
+    <div class="login-header">
+        <h2>欢迎回来</h2>
+        <p>登录您的博客账号</p>
+    </div>
+
+    <form id="login-form">
+        <div class="form-group">
+            <label>账号</label>
+            <input type="text" id="username" placeholder="请输入用户名/邮箱" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <label>密码</label>
+            <input type="password" id="password" placeholder="请输入密码">
+        </div>
+        <button type="button" id="btn-login" class="btn-block">立即登录</button>
+    </form>
+
+    <div class="login-footer">
+        <a href="index.html">← 返回首页</a>
+        <span>还没有账号？<a href="#">去注册</a></span>
+    </div>
+</div>
+
+
+</body>
+<script src="../static/js/login.js"></script>
+
+</html>

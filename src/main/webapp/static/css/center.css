@@ -1,0 +1,71 @@
+/* src/main/webapp/static/css/center.css */
+
+/* ���˵� */
+.user-menu ul {
+    margin-top: 10px;
+}
+
+.user-menu li {
+    padding: 15px 20px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+}
+
+.user-menu li:hover, .user-menu li.active {
+    background: #fdf5f2;
+    color: #fc5531;
+    border-left-color: #fc5531;
+    font-weight: bold;
+}
+
+/* ������ͷ�� */
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.btn-write-small {
+    background: #fc5531;
+    color: #fff;
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* ������ */
+.manage-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.manage-table th {
+    text-align: left;
+    padding: 12px 10px;
+    background: #f8f8f8;
+    font-weight: normal;
+    color: #999;
+    font-size: 14px;
+}
+
+.manage-table td {
+    padding: 15px 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+/* ��������ť */
+.btn-text {
+    background: none;
+    border: none;
+    color: #1890ff;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.btn-text.danger {
+    color: #ff4d4f;
+}

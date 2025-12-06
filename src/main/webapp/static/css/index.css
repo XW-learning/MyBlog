@@ -1,0 +1,61 @@
+/* src/main/webapp/static/css/index.css */
+
+.filter-bar {
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #999;
+}
+
+.filter-bar span {
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+.filter-bar span.active {
+    color: #fc5531;
+    font-weight: bold;
+}
+
+/* �����б��� */
+.article-item {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 15px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.article-item h2 {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.article-summary {
+    color: #555;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.article-meta {
+    color: #999;
+    font-size: 12px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.article-list {
+    /* 🌟 新增：设置最小高度 */
+    /* 80vh 意为视口高度的 80%，通常足够撑出滚动条 */
+    min-height: 80vh;
+
+    /* 或者设置一个固定的像素值，比如 600px 或 800px */
+    /* min-height: 800px; */
+}

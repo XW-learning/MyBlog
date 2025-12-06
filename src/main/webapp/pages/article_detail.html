@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>文章详情 - 个人博客</title>
+    <link rel="stylesheet" href="../static/css/common.css">
+    <link rel="stylesheet" href="../static/css/article_detail.css">
+    <script src="../static/js/libs/jquery.min.js"></script>
+</head>
+<body>
+
+<header class="navbar">
+    <div class="nav-container">
+        <div class="logo">MyBlog</div>
+        <ul class="nav-links">
+            <li><a href="index.html">返回首页</a></li>
+        </ul>
+    </div>
+</header>
+
+<div class="detail-container">
+    <h1 id="article-title" class="detail-title">正在加载标题...</h1>
+
+    <div class="detail-meta">
+        <span id="article-author">👤 作者ID: --</span>
+        <span id="article-time">📅 发布于: --</span>
+        <span id="article-views">👁️ 阅读: --</span>
+    </div>
+
+    <div id="article-content" class="detail-content">
+        <p>正在加载正文内容...</p>
+    </div>
+
+    <div class="like-section">
+        <button id="btn-like" class="btn-like">
+            👍 <span id="like-text">点赞</span> (<span id="like-count">0</span>)
+        </button>
+    </div>
+    <div class="comment-section">
+        <h3 class="section-title">评论区</h3>
+
+        <div class="comment-input-wrapper">
+            <textarea id="comment-content" class="comment-textarea" placeholder="说点什么吧..."></textarea>
+            <div class="comment-actions">
+                <button id="btn-submit-comment" class="btn-primary">发表评论</button>
+            </div>
+        </div>
+
+        <div id="comment-list" class="comment-list">
+            <p class="loading-text">正在加载评论...</p>
+        </div>
+    </div>
+</div>
+
+<script src="../static/js/article_detail.js"></script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+package com.personalblog.service.impl;
+
+import com.personalblog.mapper.ArticleMapper;
+import com.personalblog.mapper.impl.ArticleMapperImpl;
+import com.personalblog.model.Article;
+import com.personalblog.model.Category;
+import com.personalblog.service.ArticleService;
+import java.util.Date;
+import java.util.List;
+
+public class ArticleServiceImpl implements ArticleService {
+
+    private final ArticleMapper articleMapper = new ArticleMapperImpl();
+
+    /**
+     * 发布文章业务
+     * @param article 文章对象
+     * @return 成功返回 true
+     */
+    @Override
+    public boolean publish(Article article) {
+        // 1. 补全默认数据
+        article.setViews(0);   // 初始浏览量
+        article.setLikes(0);   // 初始点赞
+        article.setStatus(1);  // 1 表示已发布 (0表示草稿)
+
+        Date now = new Date();
+        article.setCreateTime(now);
+        article.setUpdateTime(now);
+
+        // 2. 如果摘要为空，自动截取正文前100字作为摘要
+        if (article.getSummary() == null || article.getSummary().isEmpty()) {
+            String content = article.getContent();
+            if (content.length() > 100) {
+                article.setSummary(content.substring(0, 100) + "...");
+            } else {
+                article.setSummary(content);
+            }
+        }
+
+        // 3. 保存到数据库
+        return articleMapper.save(article);
+    }
+
+    /**
+     * 获取指定用户已发布的文章（用于个人中心）
+     * @param userId 作者ID
+     * @return 文章列表
+     */
+    @Override
+    public List<Article> getUserPublishedArticles(Long userId) {
+        final int PUBLISHED_STATUS = 1; // 1 表示已发布
+        return articleMapper.findListByUserIdAndStatus(userId, PUBLISHED_STATUS);
+    }
+
+    /**
+     * 获取所有已发布的文章（首页展示）
+     * @return 文章列表
+     */
+    @Override
+    public List<Article> getPublishedArticles(String sort) {
+        final int PUBLISHED_STATUS = 1; // 1 表示已发布
+        // TODO: 这里将来可以做缓存
+        return articleMapper.findListByStatusAndSort(PUBLISHED_STATUS, sort);
+    }
+
+    /**
+     * 获取所有分类
+     * @return 分类列表
+     */
+    @Override
+    public List<Category> getAllCategories() {
+        return articleMapper.findAllCategories();
+    }
+
+    /**
+     * 获取文章详情
+     * @param id 文章ID
+     * @return 文章详情
+     */
+    @Override
+    public Article getArticleDetail(Long id) {
+        // 1. 增加浏览量
+        articleMapper.increaseViews(id);
+        // 2. 查询文章详情
+        return articleMapper.findById(id);
+    }
+
+    /**
+     * 更新文章
+     * @param article 文章对象
+     * @return 更新成功返回 true
+     */
+    @Override
+    public boolean updateArticle(Article article) {
+        // 假设文章ID和UserID已在 Servlet 中校验
+        return articleMapper.update(article) > 0;
+    }
+
+    /**
+     * 删除文章
+     * @param articleId 文章ID
+     * @param userId 用户ID
+     * @return 删除成功返回 true
+     */
+    @Override
+    public boolean deleteArticle(Long articleId, Long userId) {
+        // 业务逻辑：首先查询文章是否存在，并校验作者是否是当前用户
+        Article existingArticle = articleMapper.findById(articleId);
+
+        // 只有文章存在 且 文章的作者ID等于当前登录用户ID时，才允许删除
+        if (existingArticle != null && existingArticle.getUserId().equals(userId)) {
+            return articleMapper.deleteById(articleId) > 0;
+        }
+        return false;
+    }
+
+    /**
+     * 切换点赞状态
+     * @param userId 用户ID
+     * @param articleId 文章ID
+     * @return 切换成功返回 true
+     */
+    @Override
+    public boolean toggleLike(Long userId, Long articleId) {
+        // 1. 检查是否已经点赞
+        boolean isLiked = articleMapper.isLiked(userId, articleId);
+
+        if (isLiked) {
+            // 2. 如果已赞，则取消赞，文章赞数 -1
+            articleMapper.removeLike(userId, articleId);
+            articleMapper.updateLikeCount(articleId, -1);
+            return false; // 返回 false 表示当前状态为“未赞”
+        } else {
+            // 3. 如果未赞，则添加赞，文章赞数 +1
+            articleMapper.addLike(userId, articleId);
+            articleMapper.updateLikeCount(articleId, 1);
+            return true; // 返回 true 表示当前状态为“已赞”
+        }
+    }
+
+    /**
+     * 获取文章点赞数
+     * @param articleId 文章ID
+     * @return 点赞数
+     */
+    @Override
+    public int getLikeCount(Long articleId) {
+        Article article = articleMapper.findById(articleId);
+        return article != null ? article.getLikes() : 0;
+    }
+
+    /**
+     * 获取文章点赞数
+     * @return 热门文章列表
+     */
+    @Override
+    public List<Article> getHotArticles() {
+        return articleMapper.findHotArticles(5); // 取前5名
+    }
+
+    /**
+     * 检查用户是否已点赞
+     * @param userId 用户ID
+     * @param articleId 文章ID
+     * @return true 表示已点赞，false 表示未点赞
+     */
+    @Override
+    public boolean hasUserLiked(Long userId, Long articleId) {
+        return articleMapper.isLiked(userId, articleId);
+    }
+
+}

@@ -1,0 +1,294 @@
+/* src/main/webapp/static/css/article_detail.css */
+
+/* --- 主容器：卡片式设计 --- */
+.detail-container {
+    max-width: 800px;
+    margin: 40px auto 60px; /* 上下留出空间 */
+    background: #fff;
+    padding: 50px; /* 增加内边距，阅读更舒适 */
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); /* 添加柔和阴影 */
+}
+
+/* --- 标题区域 --- */
+.detail-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+/* --- 元数据 (作者/时间/阅读数) --- */
+.detail-meta {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 20px; /* 使用 gap 代替 margin-right */
+}
+
+.detail-meta span {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* --- 正文区域排版优化 --- */
+.detail-content {
+    font-size: 16px;
+    line-height: 1.8; /* 增加行高，提升阅读体验 */
+    color: #2c3e50;
+    min-height: 300px;
+    word-wrap: break-word; /* 防止长单词撑破布局 */
+}
+
+/* 正文段落间距 */
+.detail-content p {
+    margin-bottom: 24px;
+    text-align: justify; /* 两端对齐 */
+}
+
+/* 针对正文中可能出现的标题做简单样式 */
+.detail-content h2 {
+    font-size: 1.5rem;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    border-left: 4px solid #fc5531;
+    padding-left: 15px;
+    color: #333;
+}
+
+.detail-content h3 {
+    font-size: 1.2rem;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+/* 引用块样式 (Markdown 常用) */
+.detail-content blockquote {
+    background: #f8f9fa;
+    border-left: 4px solid #ddd;
+    padding: 15px 20px;
+    margin: 20px 0;
+    color: #666;
+}
+
+/* --- 点赞区域 (新增) --- */
+.like-section {
+    margin-top: 60px;
+    padding-top: 40px;
+    border-top: 1px dashed #eee; /* 虚线分隔 */
+    text-align: center;
+}
+
+.btn-like {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 40px;
+    font-size: 16px;
+    border-radius: 30px; /* 胶囊形状 */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+    user-select: none;
+
+    /* 默认状态 (未赞) */
+    background: #fff;
+    border: 1px solid #fc5531;
+    color: #fc5531;
+}
+
+/* 悬停效果 */
+.btn-like:hover {
+    background-color: #fff5f2; /* 浅红背景 */
+    transform: translateY(-2px); /* 轻微上浮 */
+    box-shadow: 0 4px 12px rgba(252, 85, 49, 0.15);
+}
+
+/* 激活状态 (已赞) - 需要配合 JS 添加 .active 类 */
+.btn-like.active {
+    background-color: #fc5531;
+    color: #fff;
+    border-color: #fc5531;
+    box-shadow: 0 4px 12px rgba(252, 85, 49, 0.3);
+}
+
+.btn-like.active:hover {
+    background-color: #e04a28; /* 深一点的红色 */
+}
+
+/* --- 评论区样式 --- */
+.comment-section {
+    margin-top: 60px;
+    padding-top: 40px;
+    border-top: 1px solid #eee;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    border-left: 4px solid #fc5531;
+    padding-left: 10px;
+}
+
+.comment-textarea {
+    width: 100%;
+    height: 100px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.3s;
+}
+
+.comment-textarea:focus {
+    border-color: #fc5531;
+}
+
+.comment-actions {
+    text-align: right;
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+
+.btn-primary {
+    background-color: #fc5531;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #e04a28;
+}
+
+/* 评论列表项 */
+.comment-item {
+    display: flex;
+    padding: 20px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    margin-right: 15px;
+    text-align: center;
+    line-height: 40px;
+    font-size: 20px;
+    color: #999;
+}
+
+.comment-body {
+    flex: 1;
+}
+
+.comment-user {
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.comment-text {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+}
+
+.comment-info {
+    font-size: 12px;
+    color: #999;
+    margin-top: 8px;
+}
+
+/* 子评论容器 */
+.sub-comments {
+    margin-left: 50px; /* 缩进 */
+    margin-top: 10px;
+    padding-left: 10px;
+    border-left: 2px solid #f0f0f0; /* 左侧竖线 */
+    background: #fafafa;
+}
+
+/* 回复时的引用文字样式 */
+.reply-target {
+    color: #999;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+/* article_detail.css */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.comment-textarea.small {
+    height: 60px; /* 回复框矮一点 */
+    font-size: 13px;
+}
+
+/* src/main/webapp/static/css/article_detail.css */
+
+/* --- 1. 二级回复容器 (保持缩进，作为所有子回复的“容器”) --- */
+.sub-comments {
+    margin-left: 60px; /* 一级缩进，让出头像位置 */
+    background: #f9f9f9; /* 浅灰背景，区分主评论 */
+    border-radius: 4px;
+    padding: 10px;
+    border-left: none; /* 移除之前的竖线，看起来更像一个整体板块 */
+    margin-top: 10px;
+}
+
+/* --- 2. 三级及更深层回复 (核心修改：消除缩进) --- */
+/* 选择器含义：在 .sub-comments 内部的 .sub-comments */
+.sub-comments .sub-comments {
+    margin-left: 0 !important; /* 🔥 强制归零：不再向右缩进 */
+    padding-left: 0 !important; /* 🔥 强制归零 */
+    background: transparent !important; /* 透明背景，防止灰色叠加变深 */
+    border: none !important;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+/* --- 3. 调整评论项间距，让同一列的回复看起来整齐 --- */
+.sub-comments .comment-item {
+    border-bottom: 1px solid #eee; /* 子评论之间加一条分割线 */
+    padding: 10px 0;
+    margin: 0;
+}
+
+/* 最后一个子评论去掉底边线 */
+.sub-comments .comment-item:last-child {
+    border-bottom: none;
+}
+
+/* 稍微缩小一下子评论的头像 */
+.sub-comments .comment-avatar {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px;
+    margin-right: 10px;
+}
