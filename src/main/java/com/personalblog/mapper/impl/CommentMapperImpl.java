@@ -20,15 +20,9 @@ public class CommentMapperImpl implements CommentMapper {
      */
     @Override
     public int saveComment(Comment comment) {
-        String sql = "INSERT INTO t_comment (article_id, user_id, content, parent_id, create_time)" +
-                " VALUES (?, ?, ?, ?, NOW())";
+        String sql = "INSERT INTO t_comment (article_id, user_id, content, parent_id, create_time)" + " VALUES (?, ?, ?, ?, NOW())";
         try {
-            return JDBCUtils.executeUpdate(sql,
-                    comment.getArticleId(),
-                    comment.getUserId(),
-                    comment.getContent(),
-                    comment.getParentId()
-            );
+            return JDBCUtils.executeUpdate(sql, comment.getArticleId(), comment.getUserId(), comment.getContent(), comment.getParentId());
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
@@ -49,12 +43,7 @@ public class CommentMapperImpl implements CommentMapper {
         ResultSet rs = null;
         try {
             conn = JDBCUtils.getConnection();
-            // 🔥 关键点：使用 LEFT JOIN 关联 t_user 表，获取评论人的昵称和头像
-            String sql = "SELECT c.*, u.nickname, u.avatar " +
-                    "FROM t_comment c " +
-                    "LEFT JOIN t_user u ON c.user_id = u.id " +
-                    "WHERE c.article_id = ? " +
-                    "ORDER BY c.create_time DESC";
+            String sql = "SELECT c.*, u.nickname, u.avatar " + "FROM t_comment c " + "LEFT JOIN t_user u ON c.user_id = u.id " + "WHERE c.article_id = ? " + "ORDER BY c.create_time DESC";
 
             ps = conn.prepareStatement(sql);
             ps.setLong(1, articleId);
@@ -62,14 +51,19 @@ public class CommentMapperImpl implements CommentMapper {
 
             while (rs.next()) {
                 Comment c = new Comment();
+
                 c.setId(rs.getLong("id"));
                 c.setArticleId(rs.getLong("article_id"));
                 c.setUserId(rs.getLong("user_id"));
                 c.setContent(rs.getString("content"));
-                c.setParentId(rs.getLong("parent_id"));
-                if (rs.wasNull()) c.setParentId(null); // 处理 bigint null
-                c.setCreateTime(rs.getTimestamp("create_time"));
 
+                Long parentId = rs.getLong("parent_id");
+                if (rs.wasNull()) {
+                    c.setParentId(null);
+                } else {
+                    c.setParentId(parentId);
+                }
+                c.setCreateTime(rs.getTimestamp("create_time"));
                 // 填充用户信息
                 c.setUserNickname(rs.getString("nickname"));
                 c.setUserAvatar(rs.getString("avatar"));
@@ -93,17 +87,7 @@ public class CommentMapperImpl implements CommentMapper {
     @Override
     public int deleteCommentById(Long id) {
         String sql = "DELETE FROM t_comment WHERE id = ?";
-
-        try (Connection conn = JDBCUtils.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setLong(1, id);
-            return ps.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
+        return JDBCUtils.executeUpdate(sql, id);
     }
 
     /**
@@ -115,26 +99,6 @@ public class CommentMapperImpl implements CommentMapper {
     @Override
     public Comment findCommentById(Long id) {
         String sql = "SELECT * FROM t_comment WHERE id = ?";
-        try (Connection conn = JDBCUtils.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setLong(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Comment c = new Comment();
-                    c.setId(rs.getLong("id"));
-                    c.setArticleId(rs.getLong("article_id"));
-                    c.setUserId(rs.getLong("user_id")); // 关键：我们需要这个ID来做对比
-                    c.setContent(rs.getString("content"));
-                    c.setParentId(rs.getLong("parent_id"));
-                    // 其他字段按需设置...
-                    return c;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        return JDBCUtils.executeQuerySingle(Comment.class, sql, id);
     }
-
 }

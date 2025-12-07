@@ -7,6 +7,15 @@ public class Category {
     private String name;
     private Timestamp createTime;
 
+    public Category() {
+    }
+
+    public Category(Long id, String name, Timestamp createTime) {
+        this.id = id;
+        this.name = name;
+        this.createTime = createTime;
+    }
+
     public Long getId() {
         return id;
     }

@@ -18,6 +18,22 @@ public class Comment {
     private String userNickname;
     private String userAvatar;
 
+    public Comment() {
+    }
+
+    public Comment(Long id, Long articleId, Long userId, String content, Long parentId, Date createTime, String parentNickname, List<Comment> children, String userNickname, String userAvatar) {
+        this.id = id;
+        this.articleId = articleId;
+        this.userId = userId;
+        this.content = content;
+        this.parentId = parentId;
+        this.createTime = createTime;
+        this.parentNickname = parentNickname;
+        this.children = children;
+        this.userNickname = userNickname;
+        this.userAvatar = userAvatar;
+    }
+
     // --- Getters and Setters ---
     public Long getId() {
         return id;
