@@ -22,4 +22,12 @@ public interface UserMapper {
      * @return 保存成功返回 true
      */
     boolean save(User user);
+
+    /**
+     * 检查用户名是否存在
+     *
+     * @param username 用户名
+     * @return 存在返回 true
+     */
+    boolean checkUsername(String username);
 }

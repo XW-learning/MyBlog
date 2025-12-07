@@ -8,8 +8,11 @@ import java.util.List;
 public class JDBCUtils {
 
     private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
+    private static final String DB_NAME = "blog_system";
     // ⚠️ 请确认数据库名是 blog_system
-    private static final String URL = "jdbc:mysql://localhost:3306/blog_system?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=utf-8";
+    private static final String URL = "jdbc:mysql://localhost:3306/" +
+            DB_NAME
+            + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=utf-8";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "123456";
 
@@ -136,10 +139,6 @@ public class JDBCUtils {
             return value.toString();
         }
 
-        // 3. 处理日期类型 (Timestamp -> Date)
-        // java.sql.Timestamp 是 java.util.Date 的子类，通常可以直接赋值。
-        // 但如果驱动返回 LocalDateTime，这里可能需要额外处理（目前 MySQL 8 驱动默认返回 Timestamp 应该没问题）
-
         return value; // 默认直接返回，依靠 Java 多态
     }
 
@@ -169,8 +168,20 @@ public class JDBCUtils {
     }
 
     public static void close(Connection conn, Statement stmt, ResultSet rs) {
-        try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
-        try { if (stmt != null) stmt.close(); } catch (SQLException e) { e.printStackTrace(); }
-        try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }
+        try {
+            if (rs != null) rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try {
+            if (stmt != null) stmt.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try {
+            if (conn != null) conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

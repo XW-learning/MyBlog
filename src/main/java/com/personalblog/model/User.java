@@ -10,6 +10,7 @@ public class User {
     private String username;    // 账号
     private String password;    // 密码
     private String nickname;    // 昵称
+    private String email;       // 邮箱 <-- 新增在这里
     private String avatar;      // 头像URL
     private Date createTime;    // 注册时间
 
@@ -18,11 +19,12 @@ public class User {
     }
 
     // 全参构造器 (方便创建对象)
-    public User(Long id, String username, String password, String nickname, String avatar, Date createTime) {
+    public User(Long id, String username, String password, String nickname, String email, String avatar, Date createTime) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.nickname = nickname;
+        this.email = email; // <-- 新增
         this.avatar = avatar;
         this.createTime = createTime;
     }
@@ -60,6 +62,14 @@ public class User {
         this.nickname = nickname;
     }
 
+    public String getEmail() { // <-- 新增 Getter
+        return email;
+    }
+
+    public void setEmail(String email) { // <-- 新增 Setter
+        this.email = email;
+    }
+
     public String getAvatar() {
         return avatar;
     }
@@ -78,6 +88,6 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{id=" + id + ", username='" + username + "', nickname='" + nickname + "'}";
+        return "User{id=" + id + ", username='" + username + "', nickname='" + nickname + "', email='" + email + "'}";
     }
 }

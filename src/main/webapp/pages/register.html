@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>注册 - 个人博客</title>
+    <link rel="stylesheet" href="../static/css/login.css">
+    <link rel="stylesheet" href="../static/css/common.css">
+    <script src="../static/js/libs/jquery.min.js"></script>
+</head>
+<body class="bg-login">
+
+<div class="login-container" style="width: 450px;">
+    <div class="login-header">
+        <h2>创建账号</h2>
+        <p>加入 MyBlog，开启你的创作之旅</p>
+    </div>
+
+    <form id="register-form">
+        <div class="form-group">
+            <label>账号</label>
+            <input type="text" id="username" placeholder="请输入用户名（登录用）" autocomplete="off">
+        </div>
+
+        <div class="form-group">
+            <label>昵称</label>
+            <input type="text" id="nickname" placeholder="大家怎么称呼你" autocomplete="off">
+        </div>
+
+        <div class="form-group">
+            <label>电子邮箱</label>
+            <input type="email" id="email" placeholder="用于找回密码" autocomplete="off">
+        </div>
+
+        <div class="form-group">
+            <label>密码</label>
+            <input type="password" id="password" placeholder="设置登录密码">
+        </div>
+
+        <div class="form-group">
+            <label>确认密码</label>
+            <input type="password" id="confirm_password" placeholder="请再次输入密码">
+        </div>
+
+        <button type="button" id="btn-register" class="btn-block">立即注册</button>
+    </form>
+
+    <div class="login-footer">
+        <a href="index.html">← 返回首页</a>
+        <span>已有账号？<a href="login.html">去登录</a></span>
+    </div>
+</div>
+
+<script src="../static/js/register.js"></script>
+</body>
+</html>
