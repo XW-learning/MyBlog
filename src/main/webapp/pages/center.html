@@ -78,7 +78,18 @@
 
     </div>
 </div>
-
+<!-- 在公共页面（如header或每个页面底部）添加模态框结构 -->
+<div id="customModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle">提示</h3>
+        <p id="modalMessage"></p>
+        <div class="modal-actions">
+            <button id="modalCancel" class="btn-secondary" style="display:none; margin-right: 10px;">取消</button>
+            <button id="modalConfirm" class="btn-primary">确定</button>
+        </div>
+    </div>
+</div>
 <script src="../static/js/center.js"></script>
+<script src="../static/js/common.js"></script>
 </body>
 </html>

@@ -70,9 +70,10 @@ $(document).ready(function () {
 });
 
 function handleAuthRedirect(message) {
-    alert("❌ " + message);
-    localStorage.removeItem("user");
-    window.location.href = "login.html";
+    showModal("❌ " + message, function() {
+        localStorage.removeItem("user");
+        window.location.href = "login.html";
+    });
 }
 
 /**
@@ -137,8 +138,10 @@ function loadMyArticles(page) {
                 }
             } else {
                 if (resp.message && resp.message.includes("登录")) {
-                    alert("登录已过期");
-                    window.location.href = "login.html";
+                    // alert("登录已过期");
+                    showModal("登录已过期，请重新登录", function() {
+                        window.location.href = "login.html";
+                    });
                 } else {
                     $container.html(`<p style="color:red;padding:20px;text-align:center;">${resp.message}</p>`);
                 }
@@ -233,7 +236,8 @@ function handleDeleteArticle($button) {
                         loadMyArticles(currentPage);
                     });
                 } else {
-                    alert("❌ 删除失败: " + resp.message);
+                    // alert("❌ 删除失败: " + resp.message);
+                    showModal("❌ 删除失败: " + resp.message);
                 }
             }
         });

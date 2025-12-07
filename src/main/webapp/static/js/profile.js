@@ -7,7 +7,8 @@ $(document).ready(function () {
     // 1. 检查登录
     const userJson = localStorage.getItem("user");
     if (!userJson) {
-        alert("请先登录！");
+        // alert("请先登录！");
+        showModal("请先登录！")
         window.location.href = "login.html";
         return;
     }
@@ -44,7 +45,8 @@ $(document).ready(function () {
         const newBio = $("#input-bio").val().trim();
 
         if (!newNickname) {
-            alert("昵称不能为空");
+            // alert("昵称不能为空");
+            showModal("昵称不能为空")
             return;
         }
 
@@ -59,7 +61,8 @@ $(document).ready(function () {
         // 更新本地缓存，模拟“保存成功”
         localStorage.setItem("user", JSON.stringify(currentUser));
 
-        alert("✅ 保存成功！(演示效果，仅更新本地缓存)");
+        // alert("✅ 保存成功！(演示效果，仅更新本地缓存)");
+        showModal("✅ 保存成功！(演示效果，仅更新本地缓存)")
 
         // 刷新页面显示新数据
         window.location.reload();

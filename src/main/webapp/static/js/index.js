@@ -163,24 +163,31 @@ function checkLoginStatus() {
  * 退出登录
  */
 function handleLogout() {
-    if (!confirm("确定要退出登录吗？")) {
-        return;
-    }
-
-    $.ajax({
-        url: USER_API_URL,
-        type: "POST",
-        data: { action: 'logout' },
-        success: function (resp) {
-            localStorage.removeItem("user");
-            alert("您已安全退出！");
-            window.location.reload();
+    // 🔥 [核心修改] 将原生 confirm 替换为自定义 showConfirm
+    showConfirm(
+        "确定要退出登录吗？",
+        function() {
+            $.ajax({
+                url: USER_API_URL,
+                type: "POST",
+                data: { action: 'logout' },
+                success: function (resp) {
+                    localStorage.removeItem("user");
+                    // 退出成功后提示，点击确定再刷新
+                    showModal("您已安全退出！", function() {
+                        window.location.reload();
+                    });
+                },
+                error: function () {
+                    // 即使请求失败（服务器错误），也要清除本地信息并刷新
+                    localStorage.removeItem("user");
+                    window.location.reload();
+                }
+            });
         },
-        error: function () {
-            localStorage.removeItem("user");
-            window.location.reload();
-        }
-    });
+        // onCancel (用户点击“取消”)：不执行任何操作，直接关闭模态框
+        null
+    );
 }
 
 /**
@@ -192,8 +199,10 @@ function bindWriteButtonEvent() {
         if (user) {
             window.location.href = "write.html";
         } else {
-            alert("请先登录才能发布文章哦！");
-            window.location.href = "login.html";
+            // 🔥 修改：未登录提示后，点击确定跳转登录页
+            showModal("请先登录才能发布文章哦！", function() {
+                window.location.href = "login.html";
+            });
         }
     });
 }

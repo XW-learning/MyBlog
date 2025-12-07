@@ -1,79 +1,185 @@
 // src/main/webapp/static/js/write.js
 
-// ------------------------------------------------------------------
-// 🌟 路径优化：定义全局 API 路径常量
-//
-// 注意：如果你的项目部署名为 "mypen"，并且 Servlet 映射为 "/article"，
-// 那么完整的路径就是 /mypen/article。我们这里定义 /mypen/article
-// ------------------------------------------------------------------
+// 🌟 全局 API 路径常量
 const ARTICLE_API_URL = "/mypen/article";
 const urlParams = new URLSearchParams(window.location.search);
-let editArticleId = urlParams.get('id');
+let editArticleId = urlParams.get("id");
 let currentStatus = 0;
+
+// 🔥 记录初始状态
+let originalTitle = "";
+let originalContent = "";
+
+// 🔥 防重复保存
+let isSaving = false;
+
+// 🔥 [新增] 放行令牌：如果是我们代码主动控制的跳转，就不触发浏览器原生弹窗
+let isNavigatingAway = false;
 
 $(document).ready(function () {
     const user = localStorage.getItem("user");
     if (!user) {
-        alert("请先登录才能发布/编辑文章！");
-        window.location.href = "login.html";
+        showModal("请先登录！", function() {
+            window.location.href = "login.html";
+        });
         return;
     }
 
-    // 1. 优先加载分类数据
+    // 1. 加载分类
     loadCategories();
 
-    // 2. 模式初始化 (需要在分类加载后执行，或者在加载编辑数据时处理回显)
+    // 2. 初始化：新建 / 编辑模式
     if (editArticleId) {
         $("#btn-publish").text("更新发布").attr("id", "btn-update");
-        // 注意：loadArticleForEdit 可能会在 loadCategories 完成前就执行
-        // 我们需要在 loadArticleForEdit 里处理好分类的回显
         loadArticleForEdit(editArticleId);
 
-        $("#btn-update").click(function () {
-            saveArticle(1, false);
-        });
+        $("#btn-update").click(() => saveArticle(1, false));
     } else {
-        $("#btn-publish").click(function () {
-            saveArticle(1, false);
-        });
+        originalTitle = $("#title").val() || "";
+        originalContent = $("#content").val() || "";
+
+        $("#btn-publish").click(() => saveArticle(1, false));
     }
 
-    $("#btn-draft").click(function () {
-        saveArticle(0, false);
-    });
-    // 定时自动保存 1 分钟
+    $("#btn-draft").click(() => saveArticle(0, false));
+
+    // 自动保存（1 分钟）
     setInterval(autoSave, 60000);
+
+    // -------------------------------------------------------
+    // ✅ 修复：同时拦截 click 和 mousedown，确保 100% 拦截跳转
+    // -------------------------------------------------------
+    $(document).on("click mousedown", ".back-link", function (e) {
+        handleBackClick(e);
+    });
+
+    // ✅ 额外防护：拦截浏览器刷新/关闭按钮
+    window.addEventListener('beforeunload', function (e) {
+        // 🔥 [修改] 如果是我们主动跳转（已拿到令牌），直接放行，不弹窗
+        if (isNavigatingAway) return;
+
+        const currentTitle = $("#title").val() || "";
+        const currentContent = $("#content").val() || "";
+
+        const titleChanged = currentTitle.trim() !== originalTitle.trim();
+        const contentChanged = currentContent.trim() !== originalContent.trim();
+
+        if (titleChanged || contentChanged) {
+            // 标准浏览器提示（无法自定义文案）
+            e.preventDefault();
+            e.returnValue = '您有未保存的内容，确定要离开吗？';
+        }
+    });
+
+    // 输入监听
+    $("#title, #content").on("input", function () {
+        // console.log("内容变化检测中...");
+    });
 });
 
-// ------------------------------------------------------------------
-// 核心逻辑函数
-// ------------------------------------------------------------------
+// 🔥 单独封装
+function handleBackClick(e) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    e.stopPropagation();
 
-/**
- * 自动保存功能
- */
+    const targetUrl = $(e.currentTarget).attr("href") || "index.html";
+
+    console.log("返回检测 → 当前 URL:", targetUrl);
+
+    const currentTitle = $("#title").val() || "";
+    const currentContent = $("#content").val() || "";
+
+    const titleChanged = currentTitle.trim() !== originalTitle.trim();
+    const contentChanged = currentContent.trim() !== originalContent.trim();
+
+    if (titleChanged || contentChanged) {
+        console.log("检测到未保存的内容！");
+
+        // 使用自定义模态框 confirm
+        showConfirm(
+            "⚠️ 您有未保存的内容，是否保存为草稿？\n(点击确定保存，点击取消直接离开)",
+
+            // --- 用户点击“确定” (保存并离开) ---
+            function() {
+                if (isSaving) {
+                    showModal("保存中...");
+                    return;
+                }
+                isSaving = true;
+
+                saveArticle(0, false, function (success) {
+                    isSaving = false;
+                    if (success) {
+                        // 保存成功，准备跳转
+                        setTimeout(() => {
+                            // 🔥 [修改] 设置令牌，允许离开
+                            isNavigatingAway = true;
+                            window.location.href = targetUrl;
+                        }, 100);
+                    } else {
+                        // 保存失败，再次询问
+                        showConfirm(
+                            "草稿保存失败，是否仍然要离开？（未保存内容将丢失）",
+                            function() {
+                                // 强制离开
+                                isNavigatingAway = true;
+                                window.location.href = targetUrl;
+                            },
+                            null // 取消则留在此页
+                        );
+                    }
+                });
+            },
+
+            // --- 用户点击“取消” (放弃修改，直接离开) ---
+            function() {
+                // 🔥 [修改] 设置令牌，允许离开
+                isNavigatingAway = true;
+                window.location.href = targetUrl;
+            }
+        );
+    } else {
+        // 无修改，直接跳转
+        isNavigatingAway = true;
+        window.location.href = targetUrl;
+    }
+}
+
+// 自动保存
 function autoSave() {
     const titleVal = $("#title").val();
     const contentVal = $("#content").val();
-    if (titleVal && contentVal) {
-        console.log("执行自动保存...");
+
+    if (
+        titleVal &&
+        (titleVal.trim() !== originalTitle.trim() ||
+            contentVal.trim() !== originalContent.trim())
+    ) {
+        console.log("自动保存中...");
         saveArticle(0, true);
     }
 }
 
-function saveArticle(status, isSilent) {
+// 保存/更新文章
+function saveArticle(status, isSilent, successCallback) {
     const titleVal = $("#title").val();
     const contentVal = $("#content").val();
-    // --- 修改：从隐藏域获取选中的分类ID ---
     const categoryIdVal = $("#selected-category-id").val();
 
     if (!titleVal) {
-        if (!isSilent) alert("标题不能为空");
+        if (!isSilent) {
+            showModal("标题不能为空");
+        }
+        if (successCallback) successCallback(false);
         return;
     }
-    // 发布状态下，必须选择分类
+
     if (status === 1 && (!categoryIdVal || categoryIdVal === "")) {
-        if (!isSilent) alert("发布文章请务必选择一个分类！");
+        if (!isSilent) {
+            showModal("发布文章请务必选择一个分类！");
+        }
+        if (successCallback) successCallback(false);
         return;
     }
 
@@ -85,9 +191,9 @@ function saveArticle(status, isSilent) {
         status: status
     };
 
-    let action = 'publishArticle';
+    let action = "publishArticle";
     if (editArticleId) {
-        action = 'updateArticle';
+        action = "updateArticle";
         payload.id = editArticleId;
     }
     payload.action = action;
@@ -99,92 +205,126 @@ function saveArticle(status, isSilent) {
         dataType: "json",
         success: function (resp) {
             if (resp.success) {
+                // 更新基准值
+                originalTitle = titleVal;
+                originalContent = contentVal;
+
                 if (status === 0) {
-                    if (!isSilent) alert("✅ 草稿保存成功！");
+                    if (!isSilent) {
+                        showModal("✅ 草稿保存成功！");
+                    }
+
                     if (resp.data && resp.data.newId) {
                         editArticleId = resp.data.newId;
-                        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?id=' + editArticleId;
-                        window.history.replaceState({path: newUrl}, '', newUrl);
-                        $("#btn-publish").text("更新发布").off('click').click(function () {
-                            saveArticle(1, false);
-                        });
+                        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + "?id=" + editArticleId;
+                        window.history.replaceState({ path: newUrl }, "", newUrl);
+
+                        $("#btn-publish")
+                            .text("更新发布")
+                            .off("click")
+                            .click(() => saveArticle(1, false));
                     }
                 } else {
-                    alert("🎉 文章发布成功！");
-                    window.location.href = "index.html";
+                    // 发布成功跳转
+                    showModal("🎉 文章发布成功！", function() {
+                        // 🔥 [修改] 设置令牌，允许离开
+                        isNavigatingAway = true;
+                        window.location.href = "index.html";
+                    });
                 }
+
+                if (successCallback) successCallback(true);
             } else {
-                if (!isSilent) alert("❌ 操作失败: " + resp.message);
-                if (resp.message && resp.message.includes("登录")) window.location.href = "login.html";
+                if (!isSilent) {
+                    showModal("❌ 操作失败: " + resp.message);
+                }
+                if (resp.message && resp.message.includes("登录")) {
+                    showModal(resp.message, function() {
+                        isNavigatingAway = true; // 允许跳去登录页
+                        window.location.href = "login.html";
+                    });
+                }
+                if (successCallback) successCallback(false);
             }
         },
         error: function (xhr) {
             console.error(xhr);
-            if (!isSilent) alert("网络错误");
+            if (!isSilent) {
+                showModal("网络错误，保存失败");
+            }
+            if (successCallback) successCallback(false);
         }
     });
 }
 
+// 加载文章（编辑模式）
 function loadArticleForEdit(id) {
     $.ajax({
-        url: ARTICLE_API_URL, type: "GET",
-        data: {action: "getDetail", id: id},
+        url: ARTICLE_API_URL,
+        type: "GET",
+        data: { action: "getDetail", id: id },
         dataType: "json",
         success: function (resp) {
             if (resp.success && resp.data) {
                 const article = resp.data;
+
                 $("#title").val(article.title);
                 $("#content").val(article.content);
-                currentStatus = article.status;
 
-                // --- 修改：分类回显逻辑 ---
-                // 设置隐藏域的值
+                // 更新基准值
+                originalTitle = article.title;
+                originalContent = article.content;
+
                 $("#selected-category-id").val(article.categoryId);
-                // 尝试根据ID高亮对应的标签
-                // 我们使用一个定时器尝试几次，以应对分类数据加载比文章详情慢的情况
+
+                // 分类 tag 回显逻辑
                 let attempt = 0;
                 const highlightInterval = setInterval(() => {
                     attempt++;
                     const $targetTag = $(`.category-tag[data-id='${article.categoryId}']`);
                     if ($targetTag.length > 0) {
-                        // 找到了标签，触发点击以高亮
-                        $targetTag.trigger('click');
+                        $targetTag.trigger("click");
                         clearInterval(highlightInterval);
                     } else if (attempt > 10) {
-                        // 尝试10次（约1秒）后仍未找到，停止尝试
-                        console.warn("分类回显失败：未找到对应的分类标签 ID=" + article.categoryId);
                         clearInterval(highlightInterval);
                     }
                 }, 100);
-
             } else {
-                alert("无法加载文章: " + resp.message);
-                window.location.href = "center.html";
+                showModal("无法加载文章: " + resp.message, function() {
+                    isNavigatingAway = true;
+                    window.location.href = "center.html";
+                });
             }
+        },
+        error: function() {
+            showModal("加载文章失败，请重试", function() {
+                isNavigatingAway = true;
+                window.location.href = "center.html";
+            });
         }
     });
 }
 
-// --- 修改：重写加载分类函数 ---
+// 加载分类
 function loadCategories() {
     const $container = $("#category-tags-container");
-    $.ajax({
-        url: ARTICLE_API_URL, type: "GET", data: {action: 'loadCategories'}, dataType: "json",
-        success: function (resp) {
-            $container.empty(); // 清空加载提示
-            if (resp.success && resp.data && resp.data.length > 0) {
-                $.each(resp.data, function (index, category) {
-                    // 创建标签元素
-                    const $tag = $(`<div class="category-tag">${category.name}</div>`);
-                    // 绑定数据ID
-                    $tag.data("id", category.id);
 
-                    // 绑定点击事件
+    $.ajax({
+        url: ARTICLE_API_URL,
+        type: "GET",
+        data: { action: "loadCategories" },
+        dataType: "json",
+        success: function (resp) {
+            $container.empty();
+            if (resp.success && resp.data && resp.data.length > 0) {
+                resp.data.forEach((category) => {
+                    const $tag = $(
+                        `<div class="category-tag" data-id="${category.id}">${category.name}</div>`
+                    );
+
                     $tag.click(function () {
-                        // 1. 视觉交互：移除兄弟元素的选中状态，给自己加上
                         $(this).siblings(".category-tag").removeClass("active");
                         $(this).addClass("active");
-                        // 2. 数据绑定：将ID填入隐藏域
                         $("#selected-category-id").val($(this).data("id"));
                     });
 
