@@ -23,7 +23,7 @@
     height: 100px;
     border-radius: 50%;
     border: 4px solid #fff;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     margin-right: 24px;
     object-fit: cover;
 }
@@ -221,4 +221,46 @@
 
 .btn-icon.delete:hover {
     color: red;
+}
+
+/* [新增] 分页样式 */
+.pagination-box {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+    margin-top: 10px;
+    border-top: 1px solid #f9f9f9;
+}
+
+.page-btn {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 0 4px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+    transition: all 0.2s;
+}
+
+.page-btn:hover {
+    border-color: #fc5531;
+    color: #fc5531;
+}
+
+.page-btn.active {
+    background: #fc5531;
+    color: #fff;
+    border-color: #fc5531;
+    cursor: default;
+}
+
+.page-btn.disabled {
+    color: #ccc;
+    cursor: not-allowed;
+    background: #f5f5f5;
+    border-color: #eee;
 }

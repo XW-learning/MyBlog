@@ -5,6 +5,7 @@ import com.personalblog.mapper.impl.ArticleMapperImpl;
 import com.personalblog.model.Article;
 import com.personalblog.model.Category;
 import com.personalblog.service.ArticleService;
+import com.personalblog.utils.JDBCUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -189,6 +190,56 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public boolean hasUserLiked(Long userId, Long articleId) {
         return articleMapper.isLiked(userId, articleId);
+    }
+
+    /**
+     * 分页获取用户文章
+     *
+     * @param userId   用户ID
+     * @param pageNum  当前页码 (从1开始)
+     * @param pageSize 每页显示数量
+     * @return 文章列表
+     */
+    @Override
+    public List<Article> getUserArticlesPage(Long userId, int pageNum, int pageSize) {
+        // 核心算法：计算数据库的 offset
+        // 第1页: (1-1)*10 = 0
+        // 第2页: (2-1)*10 = 10
+        int offset = (pageNum - 1) * pageSize;
+        return articleMapper.findListByUserIdPaginated(userId, offset, pageSize);
+    }
+
+    /**
+     * 获取用户文章总数
+     *
+     * @param userId 用户ID
+     * @return 文章总数
+     */
+    @Override
+    public Long getUserArticlesCount(Long userId) {
+        return articleMapper.countArticlesByUserId(userId);
+    }
+
+    /**
+     * 获取用户总浏览量
+     *
+     * @param userId 用户ID
+     * @return 总浏览量
+     */
+    @Override
+    public Long getTotalViews(Long userId) {
+        return articleMapper.sumViewsByUserId(userId);
+    }
+
+    /**
+     * 获取用户总点赞数
+     *
+     * @param userId 用户ID
+     * @return 总点赞数
+     */
+    @Override
+    public Long getTotalLikes(Long userId) {
+        return articleMapper.sumLikesByUserId(userId);
     }
 
 }

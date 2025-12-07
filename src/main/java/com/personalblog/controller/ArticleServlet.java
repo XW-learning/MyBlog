@@ -111,11 +111,39 @@ public class ArticleServlet extends HttpServlet {
      */
     private void handleArticleList(HttpServletRequest req, HttpServletResponse resp, User currentUser) throws IOException {
         try {
-            List<Article> articles = articleService.getAllUserArticles(currentUser.getId());
-            sendJson(resp, true, "获取文章列表成功", articles);
+            int pageNum = 1;
+            String pageStr = req.getParameter("pageNum");
+            if (pageStr != null && !pageStr.isEmpty()) {
+                pageNum = Integer.parseInt(pageStr);
+            }
+            int pageSize = 10;
+
+            // 1. 获取列表数据
+            Long totalCount = articleService.getUserArticlesCount(currentUser.getId());
+            if (totalCount == null) totalCount = 0L;
+            int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+            List<Article> articles = articleService.getUserArticlesPage(currentUser.getId(), pageNum, pageSize);
+
+            // 2. [新增] 获取统计数据 (浏览量 & 点赞数)
+            Long totalViews = articleService.getTotalViews(currentUser.getId());
+            Long totalLikes = articleService.getTotalLikes(currentUser.getId());
+
+            // 3. 封装返回数据
+            Map<String, Object> data = new HashMap<>();
+            data.put("articles", articles);
+            data.put("totalCount", totalCount);
+            data.put("totalPages", totalPages);
+            data.put("currentPage", pageNum);
+
+            // [新增] 将统计数据放入 Map
+            data.put("totalViews", totalViews);
+            data.put("totalLikes", totalLikes);
+
+            sendJson(resp, true, "获取成功", data);
+
         } catch (Exception e) {
             e.printStackTrace();
-            sendJson(resp, false, "获取文章列表失败", null);
+            sendJson(resp, false, "获取列表失败", null);
         }
     }
 

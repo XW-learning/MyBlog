@@ -98,4 +98,39 @@ public interface ArticleService {
      * @return true 表示已点赞，false 表示未点赞
      */
     boolean hasUserLiked(Long userId, Long articleId);
+
+    /**
+     * 分页获取用户文章
+     *
+     * @param userId   用户ID
+     * @param pageNum  当前页码 (1, 2, 3...)
+     * @param pageSize 每页显示数量
+     * @return 文章列表
+     */
+    List<Article> getUserArticlesPage(Long userId, int pageNum, int pageSize);
+
+    /**
+     * 获取用户文章总数
+     *
+     * @param userId 用户ID
+     * @return 文章总数
+     */
+    Long getUserArticlesCount(Long userId);
+
+    /**
+     * 获取用户总浏览量
+     *
+     * @param userId 用户ID
+     * @return 总浏览量
+     */
+    Long getTotalViews(Long userId);
+
+    /**
+     * 获取用户总点赞数
+     *
+     * @param userId 用户ID
+     * @return 总点赞数
+     */
+    Long getTotalLikes(Long userId);
+
 }

@@ -278,4 +278,62 @@ public class ArticleMapperImpl implements ArticleMapper {
         String sql = "SELECT id, title, views, likes FROM t_article " + "WHERE status = 1 ORDER BY likes DESC, views DESC LIMIT ?";
         return JDBCUtils.executeQueryList(Article.class, sql, limit);
     }
+
+    /**
+     * 根据用户ID分页查询文章列表
+     *
+     * @param userId 用户ID
+     * @param offset 起始索引
+     * @param limit  每页数量
+     * @return 文章列表
+     */
+    @Override
+    public List<Article> findListByUserIdPaginated(Long userId, int offset, int limit) {
+        // 使用 MySQL 的 LIMIT 语法进行物理分页
+        String sql = "SELECT id, title, create_time, views, likes, status " +
+                "FROM t_article WHERE user_id = ? ORDER BY create_time DESC LIMIT ?, ?";
+        // 注意参数顺序：userId, offset, limit
+        return JDBCUtils.executeQueryList(Article.class, sql, userId, offset, limit);
+    }
+
+    /**
+     * 根据用户ID查询文章数量
+     *
+     * @param userId 用户ID
+     * @return 文章数量
+     */
+    @Override
+    public Long countArticlesByUserId(Long userId) {
+        String sql = "SELECT COUNT(*) FROM t_article WHERE user_id = ?";
+        // JDBCUtils.executeQuerySingle 需要指定返回类型 Long.class
+        return JDBCUtils.executeQuerySingle(Long.class, sql, userId);
+    }
+
+    /**
+     * 获取用户文章总浏览量
+     *
+     * @param userId 用户ID
+     * @return 总浏览量
+     */
+    @Override
+    public Long sumViewsByUserId(Long userId) {
+        // 使用 SQL 的 SUM 函数
+        String sql = "SELECT SUM(views) FROM t_article WHERE user_id = ?";
+        Long sum = JDBCUtils.executeQuerySingle(Long.class, sql, userId);
+        // 如果没有文章，SUM 结果可能是 null，需转为 0
+        return sum != null ? sum : 0L;
+    }
+
+    /**
+     * 获取用户文章总点赞数
+     *
+     * @param userId 用户ID
+     * @return 总点赞数
+     */
+    @Override
+    public Long sumLikesByUserId(Long userId) {
+        String sql = "SELECT SUM(likes) FROM t_article WHERE user_id = ?";
+        Long sum = JDBCUtils.executeQuerySingle(Long.class, sql, userId);
+        return sum != null ? sum : 0L;
+    }
 }
