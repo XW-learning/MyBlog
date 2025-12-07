@@ -170,7 +170,8 @@ public class ArticleMapperImpl implements ArticleMapper {
      */
     @Override
     public List<Article> findListByUserId(Long userId) {
-        String sql = "SELECT id, title, create_time, views, likes, status " + "FROM t_article WHERE user_id = ? ORDER BY create_time DESC";
+        String sql = "SELECT id, title, create_time, views, likes, status " +
+                "FROM t_article WHERE user_id = ? ORDER BY create_time DESC";
 
         return JDBCUtils.executeQueryList(Article.class, sql, userId);
     }

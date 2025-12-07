@@ -14,6 +14,7 @@
     width: 400px;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
 
 .login-header {
@@ -23,6 +24,7 @@
 
 .login-header h2 {
     color: #333;
+    font-weight: 600;
     margin-bottom: 10px;
 }
 
@@ -31,30 +33,110 @@
     font-size: 14px;
 }
 
-/* ���ؼ� */
 .form-group {
     margin-bottom: 20px;
+    position: relative;
 }
 
 .form-group label {
     display: block;
     margin-bottom: 8px;
     font-size: 14px;
-    color: #666;
+    color: #333;
+    font-weight: 500;
 }
 
 .form-group input {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
     outline: none;
+    font-size: 14px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background: #fafafa;
 }
 
 .form-group input:focus {
     border-color: #fc5531;
+    background: #fff;
+    box-shadow: 0 0 0 2px rgba(252, 85, 49, 0.1);
 }
 
+/* --- 密码框与图标组合样式 --- */
+.password-group {
+    position: relative;
+    width: 100%;
+}
+
+.password-group input {
+    padding-right: 45px; /* 给右侧图标留出空间 */
+}
+
+/* 眼睛图标样式 */
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%); /* 垂直绝对居中 */
+    cursor: pointer;
+    color: #bbb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s;
+    padding: 5px; /* 增加点击热区 */
+}
+
+.toggle-password:hover {
+    color: #fc5531; /* 悬停变品牌色 */
+}
+
+/* --- 密码强度条样式 (美化版) --- */
+.strength-container {
+    margin-top: 8px;
+    display: none; /* 默认隐藏，输入时显示 */
+}
+
+/* 进度条背景槽 */
+.strength-bar-bg {
+    height: 4px;
+    background: #eee;
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* 进度条前景 */
+.strength-bar-fill {
+    height: 100%;
+    width: 0;
+    background: #eee;
+    border-radius: 2px;
+    transition: width 0.4s ease, background-color 0.4s ease;
+}
+
+/* 强度文字 */
+.strength-text {
+    font-size: 12px;
+    margin-top: 4px;
+    text-align: right;
+    color: #999;
+    transition: color 0.3s;
+}
+
+/* --- 强度等级颜色定义 --- */
+.level-weak .strength-bar-fill { width: 33%; background-color: #ff4d4f; }
+.level-weak .strength-text { color: #ff4d4f; }
+
+.level-medium .strength-bar-fill { width: 66%; background-color: #faad14; }
+.level-medium .strength-text { color: #faad14; }
+
+.level-strong .strength-bar-fill { width: 100%; background-color: #52c41a; }
+.level-strong .strength-text { color: #52c41a; }
+
+
+/* 按钮样式 */
 .btn-block {
     width: 100%;
     padding: 12px;
@@ -64,19 +146,33 @@
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    font-weight: bold;
+    transition: background 0.3s, transform 0.1s;
+    margin-top: 10px;
 }
 
 .btn-block:hover {
     background: #e04a28;
 }
 
+.btn-block:active {
+    transform: scale(0.98);
+}
+
+.btn-block:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
 .login-footer {
-    margin-top: 20px;
+    margin-top: 25px;
     display: flex;
     justify-content: space-between;
     font-size: 14px;
+    color: #666;
 }
 
 .login-footer a {
     color: #fc5531;
+    font-weight: 500;
 }

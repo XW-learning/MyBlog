@@ -1,21 +1,29 @@
 // src/main/webapp/static/js/login.js
 
-// 🌟 路径优化：定义全局 API 路径常量
-// 请确保这里的 /mypen/login 与你的 UserServlet 映射路径一致
 const LOGIN_API_URL = "/mypen/login";
 
-$("#btn-login").click(function() {
-
-    let usernameVal = $("#username").val();
+// 提取核心登录逻辑为一个函数，方便按钮和回车调用
+function performLogin() {
+    let usernameVal = $("#username").val().trim();
     let passwordVal = $("#password").val();
 
-    if(!usernameVal || !passwordVal) {
+    if (!usernameVal || !passwordVal) {
         alert("账号和密码不能为空！");
         return;
     }
 
+    // 检查密码是否包含非 ASCII 字符 (如中文)
+    const nonAsciiPattern = /[^\x00-\x7F]/;
+    if (nonAsciiPattern.test(passwordVal)) {
+        alert("❌ 密码不能包含中文或特殊符号，请使用英文、数字或常见符号。");
+        return;
+    }
+
+    // 禁用按钮，防止重复提交
+    const $btn = $("#btn-login");
+    $btn.prop("disabled", true).text("登录中...");
+
     $.ajax({
-        // ✅ 优化点：使用常量路径
         url: LOGIN_API_URL,
         type: "POST",
         data: {
@@ -23,22 +31,37 @@ $("#btn-login").click(function() {
             password: passwordVal
         },
         dataType: "json",
-        success: function(resp) {
-            console.log("后端返回:", resp);
-            if(resp.success) {
-                // 存储用户信息到本地
+        success: function (resp) {
+            if (resp.success) {
                 localStorage.setItem("user", JSON.stringify(resp.data));
-
-                // 💡 优化路径：如果 index.html 和 login.html 在同一个 pages 目录下，
-                // 直接使用 index.html 即可。
                 window.location.href = "index.html";
             } else {
                 alert("❌ " + resp.message);
+                $btn.prop("disabled", false).text("立即登录"); // 失败后恢复按钮
             }
         },
-        error: function(xhr) {
-            // 404/500 等错误
+        error: function (xhr) {
             alert("请求失败，状态码：" + xhr.status);
+            $btn.prop("disabled", false).text("立即登录"); // 失败后恢复按钮
+        }
+    });
+}
+
+$(document).ready(function () {
+
+    // 1. 按钮点击事件：调用核心登录函数
+    $("#btn-login").click(function () {
+        performLogin();
+    });
+
+    // 2. 🔥 新增：键盘回车事件绑定
+    // 监听用户名和密码输入框的按键抬起事件
+    $("#username, #password").on("keyup", function (event) {
+        // keyCode 13 代表回车键
+        if (event.keyCode === 13) {
+            performLogin();
+            // 阻止默认行为（比如提交表单或页面跳转）
+            event.preventDefault();
         }
     });
 });

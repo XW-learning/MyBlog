@@ -2,17 +2,17 @@ package com.personalblog.utils;
 
 import java.lang.reflect.Method;
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class JDBCUtils {
 
     private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String DB_NAME = "blog_system";
     // ⚠️ 请确认数据库名是 blog_system
-    private static final String URL = "jdbc:mysql://localhost:3306/" +
-            DB_NAME
-            + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=utf-8";
+    private static final String URL = "jdbc:mysql://localhost:3306/blog_system?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=utf-8";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "123456";
 
@@ -24,16 +24,10 @@ public class JDBCUtils {
         }
     }
 
-    /**
-     * 获取新连接 (每次调用都返回新的，确保线程安全)
-     */
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USERNAME, PASSWORD);
     }
 
-    /**
-     * ✅ 通用增删改方法
-     */
     public static int executeUpdate(String sql, Object... params) {
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -51,9 +45,7 @@ public class JDBCUtils {
         }
     }
 
-    /**
-     * 🔥 核心修复：增强版通用查询 - 增加类型自动转换
-     */
+    @SuppressWarnings("unchecked")
     public static <T> List<T> executeQueryList(Class<T> clazz, String sql, Object... params) {
         List<T> list = new ArrayList<>();
         try (Connection conn = getConnection();
@@ -69,34 +61,38 @@ public class JDBCUtils {
                 ResultSetMetaData metaData = rs.getMetaData();
                 int columnCount = metaData.getColumnCount();
 
+                // 判断是否是简单类型
+                boolean isScalar = isScalarType(clazz);
+
                 while (rs.next()) {
-                    T entity = clazz.getDeclaredConstructor().newInstance();
+                    if (isScalar) {
+                        Object value = rs.getObject(1);
+                        list.add((T) convertValue(value, clazz));
+                    } else {
+                        T entity = clazz.getDeclaredConstructor().newInstance();
 
-                    for (int i = 1; i <= columnCount; i++) {
-                        String columnName = metaData.getColumnLabel(i);
-                        Object columnValue = rs.getObject(i);
+                        for (int i = 1; i <= columnCount; i++) {
+                            String columnName = metaData.getColumnLabel(i);
+                            Object columnValue = rs.getObject(i);
 
-                        // 转换列名: user_id -> userId
-                        String propertyName = convertColumnToProperty(columnName);
-                        // 拼接Setter: setUserId
-                        String setterName = "set" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1);
+                            String propertyName = convertColumnToProperty(columnName);
+                            String setterName = "set" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1);
 
-                        try {
-                            // 查找 Setter
-                            Method setter = findSetterMethod(clazz, setterName);
-                            if (setter != null && columnValue != null) {
-                                // 🔥 核心修复点：获取 Setter 的参数类型，并进行手动类型转换
-                                Class<?> paramType = setter.getParameterTypes()[0];
-                                Object convertedValue = convertValue(columnValue, paramType);
-
-                                setter.invoke(entity, convertedValue);
+                            try {
+                                Method setter = findSetterMethod(clazz, setterName);
+                                if (setter != null && columnValue != null) {
+                                    Class<?> paramType = setter.getParameterTypes()[0];
+                                    // 🔥 核心修正：加强了类型转换逻辑
+                                    Object convertedValue = convertValue(columnValue, paramType);
+                                    setter.invoke(entity, convertedValue);
+                                }
+                            } catch (Exception e) {
+                                // 如果这行打印出来了，说明还是有类型不匹配的问题
+                                // System.err.println("映射失败: " + propertyName + " -> " + columnValue.getClass().getName());
                             }
-                        } catch (Exception e) {
-                            // 忽略找不到 Setter 或类型转换失败的错误，保证其他字段能正常赋值
-                            // e.printStackTrace();
                         }
+                        list.add(entity);
                     }
-                    list.add(entity);
                 }
             }
         } catch (Exception e) {
@@ -105,9 +101,6 @@ public class JDBCUtils {
         return list;
     }
 
-    /**
-     * 通用查询 - 返回单个对象
-     */
     public static <T> T executeQuerySingle(Class<T> clazz, String sql, Object... params) {
         List<T> list = executeQueryList(clazz, sql, params);
         return list.isEmpty() ? null : list.get(0);
@@ -115,14 +108,37 @@ public class JDBCUtils {
 
     // --- 内部辅助方法 ---
 
+    private static boolean isScalarType(Class<?> clazz) {
+        return clazz == String.class ||
+                Number.class.isAssignableFrom(clazz) ||
+                clazz == Boolean.class ||
+                clazz.isPrimitive();
+    }
+
     /**
-     * 🔥 核心修复：类型转换器
-     * 解决 Integer vs Long, Timestamp vs Date, Boolean vs Integer 等反射不兼容问题
+     * 🔥 核心修复：全能类型转换器
      */
     private static Object convertValue(Object value, Class<?> targetType) {
         if (value == null) return null;
 
-        // 1. 处理数字类型转换 (Long <-> Integer <-> BigDecimal)
+        // 1. 处理 Java 8 新时间类型 (LocalDateTime -> java.util.Date)
+        if (value instanceof LocalDateTime) {
+            if (targetType == java.util.Date.class || targetType == java.sql.Timestamp.class) {
+                return java.sql.Timestamp.valueOf((LocalDateTime) value);
+            }
+        }
+        if (value instanceof LocalDate) {
+            if (targetType == java.util.Date.class || targetType == java.sql.Date.class) {
+                return java.sql.Date.valueOf((LocalDate) value);
+            }
+        }
+        if (value instanceof LocalTime) {
+            if (targetType == java.util.Date.class || targetType == java.sql.Time.class) {
+                return java.sql.Time.valueOf((LocalTime) value);
+            }
+        }
+
+        // 2. 处理数字类型转换
         if (value instanceof Number) {
             Number number = (Number) value;
             if (targetType == Long.class || targetType == long.class) {
@@ -134,12 +150,12 @@ public class JDBCUtils {
             }
         }
 
-        // 2. 处理 String 转换
+        // 3. 处理 String 转换
         if (targetType == String.class) {
             return value.toString();
         }
 
-        return value; // 默认直接返回，依靠 Java 多态
+        return value;
     }
 
     private static String convertColumnToProperty(String columnName) {
@@ -168,20 +184,8 @@ public class JDBCUtils {
     }
 
     public static void close(Connection conn, Statement stmt, ResultSet rs) {
-        try {
-            if (rs != null) rs.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try {
-            if (stmt != null) stmt.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try {
-            if (conn != null) conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+        try { if (stmt != null) stmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+        try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }
     }
 }

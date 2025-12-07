@@ -1,6 +1,7 @@
 package com.personalblog.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.personalblog.model.Article;
 import com.personalblog.model.Category;
 import com.personalblog.model.User;
@@ -21,7 +22,9 @@ import java.util.Map;
 public class ArticleServlet extends HttpServlet {
 
     private final ArticleService articleService = new ArticleServiceImpl();
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .setDateFormat("yyyy-MM-dd")
+            .create();
 
     // ----------------------------------------------------------------
     // POST: 处理所有【需登录】的业务 (发布、删除、修改、点赞、查询个人列表)

@@ -1,18 +1,17 @@
 // src/main/webapp/static/js/register.js
 
-// 定义注册接口路径 (稍后我们在后端创建)
 const REGISTER_API_URL = "/mypen/register";
 
 $(document).ready(function () {
+
     $("#btn-register").click(function () {
-        // 1. 获取表单数据
+
         const username = $("#username").val().trim();
         const nickname = $("#nickname").val().trim();
         const email = $("#email").val().trim();
         const password = $("#password").val();
         const confirmPassword = $("#confirm_password").val();
 
-        // 2. 前端基础校验
         if (!username || !nickname || !email || !password) {
             alert("请填写所有必填项！");
             return;
@@ -23,15 +22,20 @@ $(document).ready(function () {
             return;
         }
 
-        // 简单的邮箱格式校验 (可选)
-        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        // <-- 新增校验开始
+        const nonAsciiPattern = /[^\x00-\x7F]/;
+        if (nonAsciiPattern.test(password) || nonAsciiPattern.test(confirmPassword)) {
+            alert("❌ 密码不能包含中文或特殊符号，请使用英文、数字或常见符号。");
+            return;
+        }
+        // <-- 新增校验结束
+
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$/;
         if (!emailPattern.test(email)) {
             alert("❌ 电子邮箱格式不正确！");
             return;
         }
 
-        // 3. 发送 AJAX 请求
-        // 按钮置灰防止重复点击
         const $btn = $(this);
         $btn.prop("disabled", true).text("注册中...");
 
@@ -39,11 +43,11 @@ $(document).ready(function () {
             url: REGISTER_API_URL,
             type: "POST",
             data: {
-                action: "register", // 明确告诉 Servlet 这是一个注册动作
-                username: username,
-                nickname: nickname,
-                email: email,
-                password: password
+                action: "register",
+                username,
+                nickname,
+                email,
+                password
             },
             dataType: "json",
             success: function (resp) {
@@ -55,12 +59,12 @@ $(document).ready(function () {
                 }
             },
             error: function (xhr) {
-                alert("请求失败，服务器错误 (Status: " + xhr.status + ")");
+                alert("服务器错误 (Status: " + xhr.status + ")");
             },
             complete: function () {
-                // 恢复按钮状态
                 $btn.prop("disabled", false).text("立即注册");
             }
         });
     });
+
 });

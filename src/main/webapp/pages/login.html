@@ -23,7 +23,8 @@
         </div>
         <div class="form-group">
             <label>密码</label>
-            <input type="password" id="password" placeholder="请输入密码">
+            <div class="password-group">  <input type="password" id="password" placeholder="请输入密码">
+                <span class="toggle-password" data-target="password">👁️</span> </div>
         </div>
         <button type="button" id="btn-login" class="btn-block">立即登录</button>
     </form>
@@ -36,6 +37,7 @@
 
 
 </body>
+<script src="../static/js/password-utils.js"></script>
 <script src="../static/js/login.js"></script>
 
 </html>

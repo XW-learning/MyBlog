@@ -32,6 +32,12 @@ public class UserLoginServlet extends HttpServlet {
             sendJson(resp, false, "账号或密码不能为空！", null);
             return;
         }
+
+        if (password.matches(".*[^\\x00-\\x7F].*")) {
+            sendJson(resp, false, "密码不能包含中文或特殊符号", null);
+            return;
+        }
+
         try {
             User user = userServiceImpl.login(username, password);
             if (user != null) {

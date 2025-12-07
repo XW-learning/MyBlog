@@ -59,7 +59,7 @@ function loadMyArticles() {
                         <tr>
                             <td><a href="write.html?id=${article.id}">${article.title}</a></td>
                             <td>${statusHtml}</td>
-                            <td>${new Date(article.createTime).toLocaleDateString()} ${new Date(article.createTime).toLocaleTimeString()}</td>
+                            <td>${article.createTime}</td>
                             <td>${article.views} / ${article.likes}</td>
                             <td>
                                 <a href="write.html?id=${article.id}" class="btn-text">编辑</a>

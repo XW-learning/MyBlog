@@ -48,15 +48,23 @@ public class UserRegisterServlet extends HttpServlet {
         String email = req.getParameter("email");
         String password = req.getParameter("password");
 
-        // 后端非空校验
-        if (username == null || username.trim().isEmpty() || nickname == null || nickname.trim().isEmpty() ||
-                email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+        // 1. 后端非空校验
+        if (username == null || username.trim().isEmpty() ||
+                nickname == null || nickname.trim().isEmpty() ||
+                email == null || email.trim().isEmpty() ||
+                password == null || password.trim().isEmpty()) {
             sendJson(resp, false, "请填写完整的注册信息");
-            return; // 添加return避免继续执行
+            return;
         }
 
-        // 检查用户名是否已存在
-        if(userService.isUsernameExist(username)){
+        // 2. 🔥 新增：校验密码是否包含非 ASCII 字符
+        if (password.matches(".*[^\\x00-\\x7F].*")) {
+            sendJson(resp, false, "密码不能包含中文或特殊符号");
+            return;
+        }
+
+        // 3. 检查用户名是否已存在
+        if (userService.isUsernameExist(username)) {
             sendJson(resp, false, "用户名已存在");
             return;
         }
@@ -70,7 +78,7 @@ public class UserRegisterServlet extends HttpServlet {
 
         // 调用service
         boolean success = userService.register(user);
-        if(success){
+        if (success) {
             sendJson(resp, true, "注册成功");
         } else {
             sendJson(resp, false, "注册失败，请稍后重试");

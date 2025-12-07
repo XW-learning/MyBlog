@@ -4,6 +4,7 @@ import com.personalblog.mapper.UserMapper;
 import com.personalblog.mapper.impl.UserMapperImpl;
 import com.personalblog.model.User;
 import com.personalblog.service.UserService;
+import com.personalblog.utils.PasswordUtils;
 
 import java.util.Date;
 
@@ -20,13 +21,19 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User login(String username, String password) {
+        // 1. 先根据用户名查出用户对象（包含加密后的密码）
         User user = userMapper.findByUsername(username);
+        // 2. 如果用户不存在
         if (user == null) {
             return null;
         }
-        if (!user.getPassword().equals(password)) {
-            return null;
+        // 3. 🔥 核心修改：使用 BCrypt 校验密码
+        // user.getPassword() 是数据库里的密文，password 是用户输入的明文
+        boolean isMatched = PasswordUtils.check(password, user.getPassword());
+        if (!isMatched) {
+            return null; // 密码错误
         }
+        // 4. 登录成功，出于安全考虑，把内存中的密码擦除再返回
         user.setPassword(null);
         return user;
     }
@@ -45,14 +52,19 @@ public class UserServiceImpl implements UserService {
             return false;
         }
 
-        // 2. 补全信息
-        user.setCreateTime(new Date());
-        // 默认头像设为 null，让数据库使用默认值或前端使用占位符
-        if (user.getAvatar() == null) {
-            user.setAvatar(null);
-        }
+        // 2. 🔥 核心修改：对密码进行加密
+        String rawPassword = user.getPassword();
+        String hashedPassword = PasswordUtils.hash(rawPassword);
+        user.setPassword(hashedPassword); // 替换为密文
 
-        // 3. 调用 Mapper 保存
+        // 3. 补全信息
+        user.setCreateTime(new Date());
+//        if (user.getAvatar() == null) {
+//            // 随便给个默认头像
+//            user.setAvatar("https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png");
+//        }
+
+        // 4. 调用 Mapper 保存
         return userMapper.save(user);
     }
 
