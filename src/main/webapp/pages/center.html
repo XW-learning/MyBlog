@@ -2,51 +2,80 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>个人中心 - 个人博客</title>
-    <link rel="stylesheet" href="../static/css/center.css">
+    <title>个人中心 - MyBlog</title>
     <link rel="stylesheet" href="../static/css/common.css">
+    <link rel="stylesheet" href="../static/css/center.css">
     <script src="../static/js/libs/jquery.min.js"></script>
 </head>
 <body>
+
 <header class="navbar">
     <div class="nav-container">
-        <div class="logo">MyBlog 个人中心</div>
+        <div class="logo">MyBlog</div>
         <ul class="nav-links">
-            <li><a href="index.html">返回首页</a></li>
+            <li><a href="index.html">首页</a></li>
         </ul>
         <div class="nav-actions">
-            <span>欢迎您，博主</span>
-            <a href="login.html" style="margin-left:10px; font-size:14px;">退出</a>
+            <span>加载中...</span>
         </div>
     </div>
 </header>
 
-<div class="main-container">
-    <div class="content-area">
-        <div class="content-header">
-            <h2>我的文章</h2>
-            <a href="write.html" class="btn-write-small">新建文章</a>
-        </div>
+<div class="profile-container">
 
-        <table class="manage-table">
-            <thead>
-            <tr>
-                <th width="40%">标题</th>
-                <th width="10%">状态</th>
-                <th width="20%">发布时间</th>
-                <th width="15%">阅读/点赞</th>
-                <th width="15%">操作</th>
-            </tr>
-            </thead>
-            <tbody id="article-list-body">
-            <tr>
-                <td colspan="4">正在加载中...</td>
-            </tr>
-            </tbody>
-        </table>
+    <div class="profile-header-card">
+        <img src="../static/images/avatar-default-svgrepo-com.png" class="user-avatar-big" id="center-avatar" onerror="this.src='https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png'">
+        <div class="user-info-block">
+            <h2>
+                <span id="center-nickname">用户昵称</span>
+                <span class="user-level">Lv.1</span>
+            </h2>
+            <div class="user-meta">
+                <span id="center-id">ID: --</span>
+                <span>IP属地：未知</span> <span id="center-join-time">加入时间：--</span>
+            </div>
+        </div>
+        <div style="margin-left: auto;">
+            <a href="write.html" class="btn-write">🖊️ 去创作</a>
+        </div>
+    </div>
+
+    <div class="profile-body">
+
+        <aside class="profile-aside">
+            <div class="aside-card">
+                <h3 class="aside-title">个人成就</h3>
+                <ul class="achievement-list">
+                    <li>
+                        <span class="achievement-icon">👍</span>
+                        获得点赞 <span style="margin-left:auto; font-weight:bold;" id="total-likes">0</span>
+                    </li>
+                    <li>
+                        <span class="achievement-icon">👁️</span>
+                        文章被阅读 <span style="margin-left:auto; font-weight:bold;" id="total-views">0</span>
+                    </li>
+                    <li>
+                        <span class="achievement-icon">📝</span>
+                        创作文章 <span style="margin-left:auto; font-weight:bold;" id="total-articles">0</span>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="profile-main">
+            <div class="profile-tabs">
+                <div class="tab-item active">我的博客</div>
+                <div class="tab-item">我的收藏 (开发中)</div>
+            </div>
+
+            <div id="article-list-container">
+                <p style="padding:20px; color:#999;">正在加载文章数据...</p>
+            </div>
+        </main>
+
     </div>
 </div>
-</body>
 
 <script src="../static/js/center.js"></script>
+</body>
 </html>
