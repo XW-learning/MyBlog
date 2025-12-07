@@ -226,7 +226,7 @@ function handleDeleteArticle($button) {
             dataType: "json",
             success: function (resp) {
                 if (resp.success) {
-                    // 优雅的淡出动画
+                    // 优雅地淡出动画
                     $item.fadeOut(300, function () {
                         $item.remove();
                         // 删除成功后重新加载当前页，确保列表和统计数据刷新

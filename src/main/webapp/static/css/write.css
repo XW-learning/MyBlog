@@ -4,14 +4,15 @@
 .write-header {
     height: 60px;
     background: #fff;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #e0e0e0;
     display: flex;
     align-items: center;
-    padding: 0 20px;
+    padding: 0 24px;
     position: fixed;
     top: 0;
     width: 100%;
     z-index: 100;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 
 .write-nav {
@@ -22,91 +23,158 @@
 }
 
 .back-link {
-    color: #999;
-    font-size: 16px;
+    color: #666;
+    font-size: 15px;
     margin-right: auto;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+.back-link:hover {
+    color: #fc5531;
 }
 
 .write-actions {
     display: flex;
-    gap: 15px;
+    gap: 12px;
     align-items: center;
 }
 
-/* 发布按钮 */
 .btn-publish {
     background: #fc5531;
     color: #fff;
     border: none;
-    padding: 6px 15px;
-    border-radius: 4px;
+    padding: 8px 20px;
+    border-radius: 20px;
     cursor: pointer;
     font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
 }
 
 .btn-publish:hover {
     background: #e04a28;
 }
 
-/* 草稿按钮 (新增) */
 .btn-draft {
-    background: #fff;
-    color: #666;
-    border: 1px solid #ddd;
-    padding: 6px 15px;
-    border-radius: 4px;
+    background: transparent;
+    color: #fc5531;
+    border: 1px solid #fc5531;
+    padding: 8px 20px;
+    border-radius: 20px;
     cursor: pointer;
     transition: all 0.2s;
     font-size: 14px;
+    font-weight: 500;
 }
 
 .btn-draft:hover {
-    border-color: #999;
+    background: #fff5f2;
+}
+
+/* --- 2. 主体布局 (核心修改：独立滚动) --- */
+.editor-main-container {
+    display: flex;
+    justify-content: center; /* 居中对齐 */
+    align-items: stretch;    /* 拉伸高度，让三列等高 */
+    gap: 0;                  /* 间距由各列内部 padding 控制 */
+
+    /* 🔥 关键：固定高度，禁止外层滚动 */
+    margin-top: 60px;        /* 避开 Header */
+    height: calc(100vh - 60px); /* 占满剩余屏幕高度 */
+    width: 100%;
+    background: #f4f5f7;
+    overflow: hidden;        /* 禁止 body 滚动 */
+}
+
+/* --- 3. 左侧：工具栏 (固定不动) --- */
+.editor-toolbar-sidebar {
+    flex: none;
+    width: 80px;            /* 固定宽度 */
+    height: 100%;           /* 占满容器高度 */
+    display: flex;
+    justify-content: flex-end; /* 让工具条贴近中间 */
+    padding-top: 40px;      /* 顶部留白 */
+    padding-right: 10px;    /* 与中间内容的间距 */
+    /* 如果工具栏太长，允许内部滚动，但不影响整体 */
+    overflow-y: auto;
+}
+
+.toolbar-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 12px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    height: fit-content; /* 高度由内容撑开 */
+}
+
+.tool-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: #666;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.tool-btn:hover {
+    background: #f0f0f0;
     color: #333;
 }
 
-/* --- 2. 主体布局 (居中对齐，模拟书写台) --- */
-.editor-main-container {
-    display: flex;
-    justify-content: center; /* 让内部元素居中 */
-    align-items: flex-start; /* 顶部对齐 */
-    gap: 20px; /* 纸张与侧边栏的间距 */
-    padding-top: 60px; /* 避开Header */
-    height: 100vh;
-    width: 100%;
-    background: #f8f8f8; /* 整体背景灰 */
-    overflow-y: auto; /* 允许滚动 */
+.tool-divider {
+    width: 20px;
+    height: 1px;
+    background: #eee;
+    margin: 4px 0;
 }
 
-/* --- 3. 编辑区包裹层 (限制宽度) --- */
+/* --- 4. 中间：写作画布 (🔥 只有它滚动) --- */
 .editor-canvas-wrapper {
-    flex: none; /* 禁止自动伸缩 */
-    width: 850px; /* 纸张宽度 + 留白 */
-    padding: 30px 0; /* 上下留白 */
+    flex: none;
+    width: 860px;           /* 容器宽度 */
+    height: 100%;           /* 占满父容器高度 */
+
+    /* 🔥 关键：开启内部滚动 */
+    overflow-y: auto;
+
+    /* 滚动条美化 (Chrome/Safari) */
+    scrollbar-width: thin;
+    padding: 40px 20px 80px 20px; /* 上下预留滚动空间 */
 }
 
-/* 核心：Word 风格纸张 */
 .editor-canvas {
     width: 100%;
-    min-height: 800px; /* 最小高度 */
+    min-height: 900px;
     background: #fff;
-    padding: 50px; /* 纸张内边距 */
+    padding: 60px 80px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-    border-radius: 4px;
+    border-radius: 8px;
+    margin-bottom: 40px; /* 底部留白，方便滚动到底 */
 }
 
 /* 标题输入框 */
 .title-input-word {
     width: 100%;
     border: none;
-    border-bottom: 1px solid #eee; /* 标题下加细线 */
     outline: none;
-    font-size: 32px;
-    font-weight: 700;
+    font-size: 36px;
+    font-weight: 800;
     margin-bottom: 30px;
-    padding-bottom: 15px;
-    color: #333;
-    display: block;
+    color: #222;
+    background: transparent;
+    line-height: 1.4;
 }
 
 .title-input-word::placeholder {
@@ -116,55 +184,57 @@
 /* 正文输入框 */
 .main-editor-word {
     width: 100%;
-    min-height: 600px; /* 正文区最小高度 */
+    min-height: 600px;
     border: none;
     outline: none;
     resize: none;
-    font-size: 16px;
+    font-size: 17px;
     line-height: 1.8;
     color: #333;
     padding: 0;
     display: block;
+    background: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* --- 4. 右侧侧边栏 (卡片式悬浮) --- */
+/* --- 5. 右侧：设置栏 (固定不动) --- */
 .write-sidebar {
-    flex: none; /* 禁止自动伸缩 */
-    width: 300px;
-    margin-top: 30px; /* 保持与纸张顶部视觉对齐 */
+    flex: none;
+    width: 340px;           /* 固定宽度 */
+    height: 100%;           /* 占满高度 */
+    padding: 40px 20px;     /* 内边距 */
+    overflow-y: auto;       /* 内容过多时允许内部滚动 */
 }
 
-/* 侧边栏卡片容器 */
 .sidebar-section {
     background: #fff;
-    padding: 20px;
-    border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     margin-bottom: 20px;
 }
 
-/* 卡片标题 */
 .sidebar-title {
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
     color: #333;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
 }
 
-/* 标题前的橙色竖条 */
-.sidebar-title::before {
-    content: '';
-    display: inline-block;
-    width: 4px;
-    height: 16px;
-    background: #fc5531;
-    margin-right: 8px;
-    border-radius: 2px;
+.setting-item {
+    margin-bottom: 20px;
 }
 
-/* --- 5. 分类标签样式 (美化部分) --- */
+.setting-label {
+    display: block;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
 .category-tags-wrapper {
     display: flex;
     flex-wrap: wrap;
@@ -172,32 +242,40 @@
 }
 
 .category-tag {
-    padding: 8px 16px;
-    background: #f4f5f7;
-    color: #555;
-    font-size: 14px;
-    border-radius: 20px; /* 胶囊形状 */
+    padding: 6px 14px;
+    background: #f7f8fa;
+    color: #666;
+    font-size: 13px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s;
     border: 1px solid transparent;
     user-select: none;
 }
 
 .category-tag:hover {
-    background: #e8ebee;
+    background: #ebedf0;
     color: #333;
 }
 
-/* 选中状态 */
 .category-tag.active {
-    background: #eaf2ff;
-    color: #1e80ff;
-    border-color: #1e80ff;
+    background: #fff5f2;
+    color: #fc5531;
+    border-color: #fc5531;
     font-weight: 500;
-    box-shadow: 0 2px 6px rgba(30, 128, 255, 0.15);
 }
 
-/* 隐藏旧的样式 */
-.inspiration-sidebar, .inspiration-card {
-    display: none;
+/* 响应式适配 */
+@media (max-width: 1300px) {
+    .editor-toolbar-sidebar {
+        display: none;
+    }
+    .write-sidebar {
+        display: none;
+    }
+    .editor-canvas-wrapper {
+        width: 100%;
+        max-width: 900px;
+        padding: 20px;
+    }
 }

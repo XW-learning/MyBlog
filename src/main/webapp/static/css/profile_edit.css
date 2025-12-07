@@ -1,0 +1,203 @@
+/* src/main/webapp/static/css/profile_edit.css */
+
+.setting-container {
+    max-width: 1200px;
+    margin: 80px auto 30px;
+    display: flex;
+    gap: 10px;
+    padding: 0 15px;
+    align-items: flex-start;
+}
+
+/* --- 左侧侧边栏 --- */
+.setting-sidebar {
+    width: 240px;
+    background: #fff;
+    border-radius: 4px;
+    padding: 10px 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.sidebar-menu li {
+    padding: 15px 24px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-menu li:hover {
+    background: #f0f0f5;
+}
+
+.sidebar-menu li.active {
+    background: #f0f0f5; /* CSDN 选中态背景 */
+    color: #fc5531;      /* 品牌色文字 */
+    font-weight: 500;
+}
+
+/* --- 右侧主内容 --- */
+.setting-main {
+    flex: 1;
+    background: #fff;
+    border-radius: 4px;
+    padding: 30px;
+    min-height: 600px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* 头部个人信息 */
+.setting-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* 头像容器 */
+.avatar-wrapper {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    cursor: pointer;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+.avatar-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 鼠标悬停显示“更换头像” */
+.avatar-mask {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    font-size: 12px;
+    text-align: center;
+    padding: 2px 0;
+    display: none;
+}
+
+.avatar-wrapper:hover .avatar-mask {
+    display: block;
+}
+
+.header-info h2 {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.tag-item {
+    font-size: 12px;
+    background: #f2f5f7;
+    color: #555;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-right: 5px;
+}
+
+.btn-text-gray {
+    color: #999;
+    font-size: 14px;
+    border: 1px solid #eee;
+    padding: 5px 12px;
+    border-radius: 15px;
+}
+.btn-text-gray:hover {
+    color: #fc5531;
+    border-color: #fc5531;
+}
+
+.setting-divider {
+    height: 1px;
+    background: #f0f0f0;
+    margin: 20px 0 30px 0;
+}
+
+/* --- 表单列表样式 --- */
+.info-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.info-label {
+    width: 100px;
+    font-size: 14px;
+    color: #555;
+    text-align: right;
+    margin-right: 30px;
+}
+
+.info-value {
+    flex: 1;
+    max-width: 500px;
+}
+
+/* 输入框美化 */
+.info-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.info-input:focus, .info-textarea:focus {
+    border-color: #fc5531;
+}
+
+.info-textarea {
+    width: 100%;
+    height: 100px;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    outline: none;
+    resize: vertical;
+}
+
+/* 保存按钮 */
+.btn-save {
+    background: #fc5531;
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-save:hover {
+    background: #e04a28;
+}

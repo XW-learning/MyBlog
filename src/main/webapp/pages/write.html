@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>写文章 - 个人博客</title>
-    <link rel="stylesheet" href="../static/css/write.css">
     <link rel="stylesheet" href="../static/css/common.css">
+    <link rel="stylesheet" href="../static/css/write.css">
     <script src="../static/js/libs/jquery.min.js"></script>
 </head>
 <body>
@@ -12,7 +12,6 @@
 <header class="write-header">
     <div class="write-nav">
         <a href="index.html" class="back-link">← 首页</a>
-
         <div class="write-actions">
             <button class="btn-draft" id="btn-draft">保存草稿</button>
             <button class="btn-publish" id="btn-publish">发布文章</button>
@@ -21,6 +20,22 @@
 </header>
 
 <div class="editor-main-container">
+
+    <div class="editor-toolbar-sidebar">
+        <div class="toolbar-card">
+            <button class="tool-btn" title="加粗"><b>B</b></button>
+            <button class="tool-btn" title="斜体"><i>I</i></button>
+            <button class="tool-btn" title="下划线"><u>U</u></button>
+            <button class="tool-btn" title="删除线"><s>S</s></button>
+            <div class="tool-divider"></div>
+            <button class="tool-btn" title="一级标题">H1</button>
+            <button class="tool-btn" title="二级标题">H2</button>
+            <button class="tool-btn" title="引用">❝❞</button>
+            <div class="tool-divider"></div>
+            <button class="tool-btn" title="插入代码">&lt;/&gt;</button>
+            <button class="tool-btn" title="插入图片">🖼️</button>
+        </div>
+    </div>
 
     <div class="editor-canvas-wrapper">
         <div class="editor-canvas">
@@ -31,11 +46,16 @@
 
     <div class="write-sidebar">
         <div class="sidebar-section category-section">
-            <h3 class="sidebar-title">选择分类</h3>
-            <input type="hidden" id="selected-category-id" value="">
-            <div class="category-tags-wrapper" id="category-tags-container">
-                <span style="color:#999; font-size: 14px;">正在加载分类...</span>
+            <h3 class="sidebar-title">发布设置</h3>
+
+            <div class="setting-item">
+                <label class="setting-label">选择分类 <span style="color:red">*</span></label>
+                <input type="hidden" id="selected-category-id" value="">
+                <div class="category-tags-wrapper" id="category-tags-container">
+                    <span style="color:#999; font-size: 14px;">正在加载分类...</span>
+                </div>
             </div>
+
         </div>
     </div>
 
@@ -44,4 +64,3 @@
 <script src="../static/js/write.js"></script>
 </body>
 </html>
-}

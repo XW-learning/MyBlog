@@ -264,3 +264,24 @@
     background: #f5f5f5;
     border-color: #eee;
 }
+
+/* 次级轮廓按钮 (编辑资料) */
+.btn-secondary-outline {
+    background: #fff;
+    color: #555;
+    border: 1px solid #ccd0d7;
+    padding: 6px 16px;
+    border-radius: 20px; /* 圆角 */
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.btn-secondary-outline:hover {
+    color: #fc5531;
+    border-color: #fc5531;
+    background-color: #fffcfb;
+}

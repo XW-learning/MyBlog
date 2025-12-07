@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>个人资料 - MyBlog</title>
+    <link rel="stylesheet" href="../static/css/common.css">
+    <link rel="stylesheet" href="../static/css/profile_edit.css">
+    <script src="../static/js/libs/jquery.min.js"></script>
+</head>
+<body>
+
+<header class="navbar">
+    <div class="nav-container">
+        <div class="logo">MyBlog</div>
+        <ul class="nav-links">
+            <li><a href="index.html">首页</a></li>
+            <li><a href="center.html">个人中心</a></li>
+        </ul>
+        <div class="nav-actions">
+            <span>加载中...</span>
+        </div>
+    </div>
+</header>
+
+<div class="setting-container">
+
+    <aside class="setting-sidebar">
+        <ul class="sidebar-menu">
+            <li class="active">个人资料</li>
+            <li>账号设置</li>
+            <li>我的收藏</li>
+            <li>浏览历史</li>
+        </ul>
+    </aside>
+
+    <main class="setting-main">
+
+        <div class="setting-header">
+            <div class="header-left">
+                <div class="avatar-wrapper">
+                    <img src="../static/img/default-avatar.png" id="profile-avatar" onerror="this.src='https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png'">
+                    <div class="avatar-mask">更换头像</div>
+                </div>
+                <div class="header-info">
+                    <h2 id="profile-nickname">加载中...</h2>
+                    <div class="header-tags">
+                        <span class="tag-item">✨ 码龄 1年</span>
+                        <span class="tag-item">🏅 新手上路</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right">
+                <a href="center.html" class="btn-text-gray">个人主页 ></a>
+            </div>
+        </div>
+
+        <div class="setting-divider"></div>
+
+        <div class="info-section">
+            <h3 class="info-title">基本信息</h3>
+
+            <div class="info-list">
+                <div class="info-item">
+                    <div class="info-label">用户昵称</div>
+                    <div class="info-value">
+                        <input type="text" id="input-nickname" class="info-input" value="" placeholder="填写你的昵称">
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">用户 ID</div>
+                    <div class="info-value">
+                        <span id="text-id" style="color:#999;">--</span>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">电子邮箱</div>
+                    <div class="info-value">
+                        <input type="email" id="input-email" class="info-input" value="" placeholder="未绑定">
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">性 别</div>
+                    <div class="info-value">
+                        <label><input type="radio" name="gender" value="male"> 男</label>
+                        <label style="margin-left:15px;"><input type="radio" name="gender" value="female"> 女</label>
+                        <label style="margin-left:15px;"><input type="radio" name="gender" value="secret" checked> 保密</label>
+                    </div>
+                </div>
+
+                <div class="info-item" style="align-items: flex-start;">
+                    <div class="info-label">个人简介</div>
+                    <div class="info-value">
+                        <textarea id="input-bio" class="info-textarea" placeholder="填写你的个人简介，让大家更了解你..."></textarea>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label"></div>
+                    <div class="info-value">
+                        <button id="btn-save-profile" class="btn-save">保存修改</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="../static/js/profile.js"></script>
+</body>
+</html>
